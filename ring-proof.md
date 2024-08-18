@@ -1,4 +1,4 @@
-# W3F Ring Proof Specification
+# Ring Proof Specification
 
 ## *Abstract*
 
