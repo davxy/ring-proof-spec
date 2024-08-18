@@ -1,15 +1,16 @@
 # W3F Ring Proof Specification
 
-Base on [Vasilyev](https://hackmd.io/ulW5nFFpTwClHsD0kusJAA) notes.
-
 ## *Abstract*
 
-This document presents a SNARK-based cryptographic scheme that allows a prover
-to demonstrate knowledge of a secret scalar $t$ and its associated public key
-$PK_k$​within a ring of public keys, without revealing which key is associated
-with the secret. The scheme utilizes elliptic curve operations, polynomial
-commitment schemes, and the Fiat-Shamir heuristic to generate non-interactive
-zero-knowledge proofs. The primary goal is to prove the relation $R = PK_k + tH$.
+This document describes a cryptographic scheme based on SNARKs (Succinct
+Non-Interactive Arguments of Knowledge) that allows a prover to demonstrate
+knowledge of a secret value $t$ and its associated public key $PK_k$ within
+a group of public keys, without revealing which specific key is involved.
+Importantly, the secret $t$ is not algebraically linked to the public key $PK_k$​;
+instead, it is used in combination with a known point $H$ on an elliptic curve to
+construct a proof of the relation $R = PK_k+t·H$. The scheme employs elliptic
+curve operations, a polynomial commitment scheme, and the Fiat-Shamir heuristic
+to ensure the proof is both non-interactive and zero-knowledge.
 
 ## 1. Notation
 
