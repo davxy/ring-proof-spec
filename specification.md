@@ -13,7 +13,6 @@ $R = PK_k + t·H$ is satisfied. It leverages elliptic curve operations,
 a polynomial commitment scheme, and the Fiat-Shamir heuristic to achieve
 non-interactivity and zero-knowledge properties.
 
-
 ## 1. Notation
 
 ### 1.1. Basics
@@ -21,19 +20,13 @@ non-interactivity and zero-knowledge properties.
 #### Basic Sets
 
 - $\mathbb{N}_k = \{0, \dots, k-1\}$
-
 - $\mathbb{B} = \mathbb{N}_2$
 
 #### Vectors Operations
 
 - $\overline{x} = (x_0, \dots, x_{n-1}),\ \overline{x}_i = x_i,\ 0 \leq i < n$
-  
-
 - $\overline{a} \| \overline{b} = (a_0, \ldots, a_{n-1}, b_0, \ldots, b_{m-1})$
-  
-
 - $x^{\|n} = (x, \ldots, x) \in X^n$
-
 
 #### Kronecker Delta 
 
@@ -44,8 +37,7 @@ non-interactivity and zero-knowledge properties.
 
 #### Lagrange Basis Polynomials
 
-- $L_i = L_{\mathbb{D}, i} \in \mathbb{F}[X]^{<N}$
-    - $i \in \mathbb{N}_N,\ \ L_i(\omega^j) = \delta_{ij}$
+- $L_i = L_{\mathbb{D}, i} \in \mathbb{F}[X]^{<N},\ \ i \in \mathbb{N}_N,\ \ L_i(\omega^j) = \delta_{ij}$
 
 
 ### 1.2. Curves and Fields
@@ -55,24 +47,16 @@ non-interactivity and zero-knowledge properties.
  
 #### Elliptic Curves
 
-- $J = J / \mathbb{F}$
-    - Elliptic curve $J$ defined over the field $\mathbb{F}$
-
-- $\tilde{\mathbb{J}} = J(\mathbb{F})$
-    - Group of $\mathbb{F}$-rational points on $J$
-
-- $\mathbb{J} \subset \tilde{\mathbb{J}}$
-    - Prime order subgroup of $\tilde{\mathbb{J}}$
+- $J = J / \mathbb{F}$ -- Elliptic curve $J$ defined over the field $\mathbb{F}$.
+- $\tilde{\mathbb{J}} = J(\mathbb{F})$ -- Group of $\mathbb{F}$-rational points on $J$.
+- $\mathbb{J} \subset \tilde{\mathbb{J}}$ -- Prime order subgroup of $\tilde{\mathbb{J}}$.
 
 
 #### Scalar Field
 
-- $\mathbb{F_J}$
-  - Field associated with the elliptic curve $\mathbb{J}$, with $|\mathbb{F_J}| = |\mathbb{J}|$.
-- $N_J = \lceil \log_2 |\mathbb{F_J}| \rceil$
-  - Number of bits to represent an element of $\mathbb{F_J}$.
-- $N_K = N - N_J - 4$
-  - Maximum size of the ring handled with a domain of size $N$.
+- $\mathbb{F_J}$ -- Field associated with the elliptic curve $\mathbb{J}$, with $|\mathbb{F_J}| = |\mathbb{J}|$.
+- $N_J = \lceil \log_2 |\mathbb{F_J}| \rceil$ -- Number of bits to represent an element of $\mathbb{F_J}$.
+- $N_K = N - N_J - 4$ -- Maximum size of the ring handled with a domain of size $N$.
 
 ### 1.3. Support Functions
 
@@ -83,17 +67,17 @@ non-interactivity and zero-knowledge properties.
 
 #### Polynomial Interpolation
 
-- $\text{Interpolate}: \mathbb{F}^k \rightarrow \mathbb{F}[x]^{\lt k};\ \ \overline{x} \rightarrow f$ 
+- $\text{Interpolate}: \mathbb{F}^k \rightarrow \mathbb{F}[x]^{< k};\ \ \overline{x} \rightarrow f$ 
 
 #### Polynomial Commitment Scheme
 
 - $\text{PCS.Commit}: \mathbb{F}[x] \rightarrow \mathbb{G};\ \ f \rightarrow C_f$
   - Commits to a polynomial $f$ over $\mathbb{F}$, with commitment in group $\mathbb{G}$. When applied to a vector $\bar{x}$, the components are interpolated over the domain $\mathbb{D}$ to form $f$.
 
-- $\text{PCS.Open}: (\mathbb{G}, \mathbb{F}) \rightarrow (\mathbb{F}, \mathbb{\Pi});\ \ (C_f, x) \rightarrow (y, \pi)$
-  - Evaluates the committed polynomial $f$ at point $x$, returning evaluation $y$ and proof $\pi$. The proof domain $\mathbb{\Pi}$ depends on the PCS.
+- $\text{PCS.Open}: (\mathbb{G}, \mathbb{F}) \rightarrow (\mathbb{F}, \Pi);\ \ (C_f, x) \rightarrow (y,\pi)$
+  - Evaluates the committed polynomial $f$ at point $x$, returning evaluation $y$ and proof $\pi$. The proof domain $\Pi$ depends on the PCS.
 
-- $\text{PCS.Verify}: (\mathbb{G}, \mathbb{F}, \mathbb{F}, \mathbb{\Pi}) \rightarrow \mathbb{B};\ \ (C_f, x, y , \pi) \rightarrow (0|1)$
+- $\text{PCS.Verify}: (\mathbb{G}, \mathbb{F}, \mathbb{F}, \Pi) \rightarrow \mathbb{B};\ \ (C_f,x,y ,\pi) \rightarrow (0|1)$
   - Verifies whether $y = f(x)$ given the commitment $C_f$ and proof $\pi$.
 
 #### Fiat-Shamir Transform
@@ -101,60 +85,36 @@ non-interactivity and zero-knowledge properties.
 - $\text{FS}: \mathbb{S} \rightarrow \mathbb{F};\ \textbf{s} \rightarrow x$
   - Maps a serializable object $\textbf{s} \in \mathbb{S}$ to $\mathbb{F}$, typically via some cryptographically secure hash function.
 
-### 1.4. Parameters
-
-- $\square \in \mathbb{J}$
-    - Padding element, a point on the elliptic curve $\mathbb{J}$ with an unknown discrete logarithm.
-- $H \in \mathbb{J}$
-    - Pedersen blinding base, a base point used in the Pedersen commitment scheme.
-- $\overline{H} = (H, 2H, 4H, \ldots, 2^{N_{J-1}}H) \in \mathbb{J}^{N_J}$
-    - A vector of scaled multiples of $H$.
-- $S \in \tilde{\mathbb{J}} \setminus \mathbb{J}$
-    - A point in the group $\tilde{\mathbb{J}}$ but not in the subgroup $\mathbb{J}$, used as a seed for an acuumulation procedure. As the accumulation adds points in $\mathbb{J}$ the result will never be the identity.
-
-
 ---
 
 ## 2. Parameters
 
 ### 2.1. Scheme Specific
 
-- $\square \in \mathbb{J}$
-  - Padding element, a point on $\mathbb{J}$ with unknown discrete logarithm.
-- $H \in \mathbb{J}$
-  - Pedersen blinding base point.
-- $\overline{H} = (H, 2H, 4H, \ldots, 2^{N_{J-1}}H) \in \mathbb{J}^{N_J}$
-  - Vector of scaled multiples of $H$.
-- $S \in \tilde{\mathbb{J}} \setminus \mathbb{J}$
-  - Point in $\tilde{\mathbb{J}}$ used as seed for accumulation, ensuring the result is never the identity.
+- $\square \in \mathbb{J}$ -- Padding element, a point on $\mathbb{J}$ with unknown discrete logarithm.
+- $H \in \mathbb{J}$ -- Pedersen blinding base point.
+- $\overline{H} = (H, 2H, 4H, \ldots, 2^{N_{J-1}}H) \in \mathbb{J}^{N_J}$ -- Vector of scaled multiples of $H$.
+- $S \in \tilde{\mathbb{J}} \setminus \mathbb{J}$ -- Point in $\tilde{\mathbb{J}}$ used as seed for accumulation, ensuring the result is never the identity.
 
 ### 2.2. Public Data
   
-- $\overline{PK} \in \mathbb{J}^{N_K}$
-  - Vector of public keys in the ring, padded with $\square$ to length $N_K$ if needed.
+- $\overline{PK} \in \mathbb{J}^{N_K}$ -- Vector of public keys in the ring, padded with $\square$ to length $N_K$ if needed.
 
 ### 2.3. Witness Data
 
-- $t \in \mathbb{F_J}$
-  - Prover's one-time secret.
-
-- $k \in \mathbb{N}_{N_K}$
-    - Prover's index within the ring, identifying which public key in $\overline{PK}$ belongs to the prover.
+- $t \in \mathbb{F_J}$ -- Prover's one-time secret.
+- $k \in \mathbb{N}_{N_K}$ -- Prover's index within the ring, identifying which public key in $\overline{PK}$ belongs to the prover.
 
 ### 2.4. Preprocessing
  
 #### 2.4.1. Public Input Preprocessing
 
 Concatenate ring points with scaled multiples of $H$:
-
 $$\overline{P} = \overline{PK} \| \overline{H} = (P_0, \ldots, P_{N-5}) \in \mathbb{J}^{N-4}$$
-
 $$\overline{p}_x = (P_{x,0}, \ldots, P_{x,N-5}, 0, 0, 0, 0) \in \mathbb{F}^N$$
-
 $$\overline{p}_y = (P_{y,0}, \ldots, P_{y,N-5}, 0, 0, 0, 0) \in \mathbb{F}^N$$
 
 Ring items selector:
-
 $$\overline{s} = 1^{\|N_K}\ \|\ 0^{\|N-N_K} \in \mathbb{F}^N$$
 
 #### 2.4.1 Interpolation
@@ -168,18 +128,12 @@ The resulting vectors are interpolated over $\mathbb{D}$:
 #### 2.4.2. Commit to the constructed vectors:
 
 $$C_{p_x} = \text{PCS.Commit}(\overline{p}_x)$$
-
 $$C_{p_y} = \text{PCS.Commit}(\overline{p}_y)$$
-
 $$C_s = \text{PCS.Commit}(\overline{s})$$
-
-
-
 
 ### 2.5. Relation to Prove
 
 Knowledge of $k$ and $t$ such that $R = PK_k + tH$.
-
 $$\mathfrak{R}_H = \{ (R, \overline{PK}; k, t) \mid R = PK_k + tH \,;\, R \in \mathbb{J}, \, \overline{PK} \in \mathbb{J}^{N_K}, \, k \in \mathbb{N}_{N_K}, \, t \in \mathbb{F_J} \}$$
 
 ---
@@ -190,15 +144,13 @@ $$\mathfrak{R}_H = \{ (R, \overline{PK}; k, t) \mid R = PK_k + tH \,;\, R \in \m
 
 #### 3.1.1. Bits Vector
 
-- $\overline{k} \in \mathbb{B}^{N_K}$  
-  - Binary vector representing the index $k$ in the ring. $\overline{k}$ has $N_K$ elements where $k_i = \delta_{ik}$
+- $\overline{k} \in \mathbb{B}^{N_K}$ -- Binary vector representing the index $k$ in the ring. $\overline{k}$ has $N_K$ elements where $k_i = \delta_{ik}$
 
-- $\overline{t} \in \mathbb{B}^{N_J}$
-  - Binary representation of the secret scalar $t$, with $t_i$ representing the $i$-th bit of $t$ in little-endian order, i.e., $t = \sum t_i 2^i$, for $i \in \mathbb{N}_{N_J}$
+- $\overline{t} \in \mathbb{B}^{N_J}$ -- Binary representation of the secret scalar $t$, with $t_i$ representing the $i$-th bit of $t$ in little-endian order, i.e., $t = \sum t_i 2^i$, for $i \in \mathbb{N}_{N_J}$
 
-The bits vector $\overline{b}$ is constructed by concatenating the binary vectors $\overline{k}$ and $\overline{t}$, followed by a single 0 and three random values:
+The bits vector $\overline{b}$ is constructed by concatenating $\overline{k}$ and $\overline{t}$, followed by a single 0.
 
-$$\overline{b} = (\overline{k} \| \overline{t} \| (0)$$
+$$\overline{b} = \overline{k} \| \overline{t} \| (0)$$
 
 #### 3.1.2. Conditional Sum Accumulator Vectors
 
@@ -210,7 +162,6 @@ $$
 - The accumulator is updated at each index $i$ based on the previous value and the product of $b_{i-1}$ and $P_{i-1}$.
 
 The resulting accumulator points are finally separated into $x$ and $y$ coordinates:
-
 $$
 (\overline{acc}_x, \overline{acc}_y) = \text{unzip}(\overline{ACC})
 $$
@@ -218,7 +169,7 @@ $$
 #### 3.1.3. Inner Product Accumulator Vector
 
 $$
-  acc_{ip_0} = 0, \quad acc_{ip_i} = acc_{ip_{i-1}} + b_{i-1}s_{i-1}, \quad i = 1, \ldots, N-4
+acc_{ip_0} = 0, \quad acc_{ip_i} = acc_{ip_{i-1}} + b_{i-1}s_{i-1}, \quad i = 1, \ldots, N-4
 $$
 
 - The accumulator is initialized with $0$.
@@ -226,12 +177,12 @@ $$
 
 #### 3.1.4. Interpolation
 
-The resulting vectors are interpolated over $\mathbb{D}$ with three random values $r_i$ appended as padding for the final entries. This padding helps obscure the resulting polynomial, even when committing to identical witness values.
+The resulting vectors are interpolated over $\mathbb{D}$ with random values $\{r_i\}$ appended as padding for the final entries. This padding helps obscure the resulting polynomial, even when committing to identical witness values.
 
 - $b = \text{Interpolate}(\overline{b} \| (r_1, r_2, r_3))$.
-- $acc_x = \text{Interpolate}(\overline{acc}_x \| (r_1, r_3, r_3))$.
-- $acc_y = \text{Interpolate}(\overline{acc}_y \| (r_1, r_3, r_3))$.
-- $acc_{ip} = \text{Interpolate}(\overline{acc}_{ip} \| (r_1, r_3, r_3))$.
+- $acc_x = \text{Interpolate}(\overline{acc}_x \| (r_4, r_5, r_6))$.
+- $acc_y = \text{Interpolate}(\overline{acc}_y \| (r_7, r_8, r_9))$.
+- $acc_{ip} = \text{Interpolate}(\overline{acc}_{ip} \| (r_{10}, r_{11}, r_{12}))$.
 
 ### 3.2. Constraints
 
@@ -248,6 +199,9 @@ $$
 This constraint ensures the inner product accumulator $acc_{ip}(x)$ is correctly updated, satisfying $acc_{ip}(\omega x) = acc_{ip}(x) + b(x)s(x)$.
 
 The factor $(x - \omega^{N-4})$ ensures the constraint holds at all points including $x = \omega^{N-4}$, where $c_1(x)$ automatically vanishes.
+
+\begin{comment}
+
 
 #### 3.2.2. Conditional Addition
 
@@ -543,3 +497,5 @@ and reference implementation, as cited in the references.
 - Sergey Vasilyev original writeup: https://hackmd.io/ulW5nFFpTwClHsD0kusJAA
 - W3F reference implementation: https://github.com/w3f/ring-proof
 
+
+\end{comment}
