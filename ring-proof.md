@@ -518,9 +518,9 @@ Compute the individual linearization polynomial commitments:
 
 $$C_{l_1}=(\zeta-\omega^{N-4})C_{acc_{ip}}$$
 
-$$C_{l_2}=(\zeta-\omega^{N-4})\left[b_\zeta(acc_{x,\zeta}-p_{x,\zeta})^2C_{acc_x}+(1-b_\zeta)C_{acc_y}\right]$$
+$$C_{l_2}=(\zeta-\omega^{N-4})\left(b_\zeta(acc_{x,\zeta}-p_{x,\zeta})^2C_{acc_x}+(1-b_\zeta)C_{acc_y}\right)$$
 
-$$C_{l_3}=(\zeta-\omega^{N-4})\left\{\left[b_\zeta(acc_{y,\zeta}-p_{y,\zeta})+1-b_\zeta\right]C_{acc_x}+b_\zeta(acc_{x,\zeta}-p_{x,\zeta}) C_{acc_y}\right\}$$
+$$C_{l_3}=(\zeta-\omega^{N-4})\left(\left(b_\zeta(acc_{y,\zeta}-p_{y,\zeta})+1-b_\zeta\right)C_{acc_x}+b_\zeta(acc_{x,\zeta}-p_{x,\zeta}) C_{acc_y}\right)$$
 
 Aggregate the linearization polynomial commitments using $\{\alpha_i\}$ coefficients.
 
