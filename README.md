@@ -1,14 +1,13 @@
 # Ring Proof Specification
 
 This document describes a cryptographic scheme based on SNARKs (Succinct
-Non-Interactive Arguments of Knowledge) that allows a prover to demonstrate
-knowledge of a secret value $t$ and its associated public key $PK_k$ within
-a group of public keys, without revealing which specific key is involved.
-Importantly, the secret $t$ is not algebraically linked to the public key $PK_k$​;
-instead, it is used in combination with a known point $H$ on an elliptic curve to
-construct a proof of the relation $R = PK_k+t·H$. The scheme employs elliptic
-curve operations, a polynomial commitment scheme, and the Fiat-Shamir heuristic
-to ensure the proof is both non-interactive and zero-knowledge.
+Non-Interactive Arguments of Knowledge) that enables a prover to demonstrate
+knowledge of a secret scalar $t$ and a secret index $k$ within a group of
+public keys, where each public key is a point on an elliptic curve. The scheme
+ensures that, when combined with a public elliptic curve point $H$, the relation
+$R = PK_k + t·H$ is satisfied. It leverages elliptic curve operations,
+a polynomial commitment scheme, and the Fiat-Shamir heuristic to achieve
+non-interactivity and zero-knowledge properties.
 
 ## Acknowledgements
 
