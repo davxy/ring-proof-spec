@@ -195,6 +195,13 @@ Polynomials}\label{lagrange-basis-polynomials}}
 \tightlist
 \item
   \(\text{Interpolate}: \mathbb{F}^k \rightarrow \mathbb{F}[x]^{< k};\ \ \overline{x} \rightarrow f\)
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Construct a polynomial by interpolating the vector values over
+    \(\mathbb{D}\)
+  \end{itemize}
 \end{itemize}
 
 \hypertarget{polynomial-commitment-scheme}{%
@@ -210,9 +217,7 @@ Scheme}\label{polynomial-commitment-scheme}}
   \tightlist
   \item
     Commits to a polynomial \(f\) over \(\mathbb{F}\), with commitment
-    in group \(\mathbb{G}\). When applied to a vector \(\bar{x}\), the
-    components are interpolated over the domain \(\mathbb{D}\) to form
-    \(f\).
+    in group \(\mathbb{G}\).
   \end{itemize}
 \item
   \(\text{PCS.Open}: (\mathbb{G}, \mathbb{F}) \rightarrow (\mathbb{F}, \Pi);\ \ (C_f, x) \rightarrow (y,\pi)\)
@@ -326,9 +331,8 @@ The resulting vectors are interpolated over \(\mathbb{D}\):
 \paragraph{2.4.2. Commit to the constructed
 vectors}\label{commit-to-the-constructed-vectors}}
 
-\[C_{p_x} = \text{PCS.Commit}(\overline{p}_x)\]
-\[C_{p_y} = \text{PCS.Commit}(\overline{p}_y)\]
-\[C_s = \text{PCS.Commit}(\overline{s})\]
+\[C_{p_x} = \text{PCS.Commit}(p_x)\]
+\[C_{p_y} = \text{PCS.Commit}(p_y)\] \[C_s = \text{PCS.Commit}(s)\]
 
 \hypertarget{relation-to-prove}{%
 \subsubsection{2.5. Relation to Prove}\label{relation-to-prove}}

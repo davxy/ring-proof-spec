@@ -68,11 +68,12 @@ non-interactivity and zero-knowledge properties.
 #### Polynomial Interpolation
 
 - $\text{Interpolate}: \mathbb{F}^k \rightarrow \mathbb{F}[x]^{< k};\ \ \overline{x} \rightarrow f$ 
+  - Construct a polynomial by interpolating the vector values over $\mathbb{D}$
 
 #### Polynomial Commitment Scheme
 
 - $\text{PCS.Commit}: \mathbb{F}[x] \rightarrow \mathbb{G};\ \ f \rightarrow C_f$
-  - Commits to a polynomial $f$ over $\mathbb{F}$, with commitment in group $\mathbb{G}$. When applied to a vector $\bar{x}$, the components are interpolated over the domain $\mathbb{D}$ to form $f$.
+  - Commits to a polynomial $f$ over $\mathbb{F}$, with commitment in group $\mathbb{G}$.
 
 - $\text{PCS.Open}: (\mathbb{G}, \mathbb{F}) \rightarrow (\mathbb{F}, \Pi);\ \ (C_f, x) \rightarrow (y,\pi)$
   - Evaluates the committed polynomial $f$ at point $x$, returning evaluation $y$ and proof $\pi$. The proof domain $\Pi$ depends on the PCS.
@@ -126,9 +127,9 @@ $$s = \text{Interpolate}(\overline{s})$$
 
 #### 2.4.2. Commit to the constructed vectors
 
-$$C_{p_x} = \text{PCS.Commit}(\overline{p}_x)$$
-$$C_{p_y} = \text{PCS.Commit}(\overline{p}_y)$$
-$$C_s = \text{PCS.Commit}(\overline{s})$$
+$$C_{p_x} = \text{PCS.Commit}(p_x)$$
+$$C_{p_y} = \text{PCS.Commit}(p_y)$$
+$$C_s = \text{PCS.Commit}(s)$$
 
 ### 2.5. Relation to Prove
 
