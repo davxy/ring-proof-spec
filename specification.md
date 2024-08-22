@@ -1,6 +1,6 @@
 # Ring Proof Specification
 
-21-08-2024-draft-4
+22-08-2024-draft-6
 
 ## *Abstract*
 
@@ -13,7 +13,6 @@ $R = PK_k + t·H$ is satisfied. It leverages elliptic curve operations,
 a polynomial commitment scheme, and the Fiat-Shamir heuristic to achieve
 non-interactivity and zero-knowledge properties.
 
-
 ## 1. Notation
 
 ### 1.1. Basics
@@ -21,19 +20,13 @@ non-interactivity and zero-knowledge properties.
 #### Basic Sets
 
 - $\mathbb{N}_k = \{0, \dots, k-1\}$
-
 - $\mathbb{B} = \mathbb{N}_2$
 
 #### Vectors Operations
 
 - $\overline{x} = (x_0, \dots, x_{n-1}),\ \overline{x}_i = x_i,\ 0 \leq i < n$
-  
-
 - $\overline{a} \| \overline{b} = (a_0, \ldots, a_{n-1}, b_0, \ldots, b_{m-1})$
-  
-
 - $x^{\|n} = (x, \ldots, x) \in X^n$
-
 
 #### Kronecker Delta 
 
@@ -44,8 +37,7 @@ non-interactivity and zero-knowledge properties.
 
 #### Lagrange Basis Polynomials
 
-- $L_i = L_{\mathbb{D}, i} \in \mathbb{F}[X]^{<N}$
-    - $i \in \mathbb{N}_N,\ \ L_i(\omega^j) = \delta_{ij}$
+- $L_i = L_{\mathbb{D}, i} \in \mathbb{F}[X]^{<N},\ \ i \in \mathbb{N}_N,\ \ L_i(\omega^j) = \delta_{ij}$
 
 
 ### 1.2. Curves and Fields
@@ -55,24 +47,16 @@ non-interactivity and zero-knowledge properties.
  
 #### Elliptic Curves
 
-- $J = J / \mathbb{F}$
-    - Elliptic curve $J$ defined over the field $\mathbb{F}$
-
-- $\tilde{\mathbb{J}} = J(\mathbb{F})$
-    - Group of $\mathbb{F}$-rational points on $J$
-
-- $\mathbb{J} \subset \tilde{\mathbb{J}}$
-    - Prime order subgroup of $\tilde{\mathbb{J}}$
+- $J = J / \mathbb{F}$ -- Elliptic curve $J$ defined over the field $\mathbb{F}$.
+- $\tilde{\mathbb{J}} = J(\mathbb{F})$ -- Group of $\mathbb{F}$-rational points on $J$.
+- $\mathbb{J} \subset \tilde{\mathbb{J}}$ -- Prime order subgroup of $\tilde{\mathbb{J}}$.
 
 
 #### Scalar Field
 
-- $\mathbb{F_J}$
-  - Field associated with the elliptic curve $\mathbb{J}$, with $|\mathbb{F_J}| = |\mathbb{J}|$.
-- $N_J = \lceil \log_2 |\mathbb{F_J}| \rceil$
-  - Number of bits to represent an element of $\mathbb{F_J}$.
-- $N_K = N - N_J - 4$
-  - Maximum size of the ring handled with a domain of size $N$.
+- $\mathbb{F_J}$ -- Field associated with the elliptic curve $\mathbb{J}$, with $|\mathbb{F_J}| = |\mathbb{J}|$.
+- $N_J = \lceil \log_2 |\mathbb{F_J}| \rceil$ -- Number of bits to represent an element of $\mathbb{F_J}$.
+- $N_K = N - N_J - 4$ -- Maximum size of the ring handled with a domain of size $N$.
 
 ### 1.3. Support Functions
 
@@ -83,17 +67,18 @@ non-interactivity and zero-knowledge properties.
 
 #### Polynomial Interpolation
 
-- $\text{Interpolate}: \mathbb{F}^k \rightarrow \mathbb{F}[x]^{\lt k};\ \ \overline{x} \rightarrow f$ 
+- $\text{Interpolate}: \mathbb{F}^k \rightarrow \mathbb{F}[x]^{< k};\ \ \overline{x} \rightarrow f$ 
+  - Construct a polynomial by interpolating the vector values over $\mathbb{D}$
 
 #### Polynomial Commitment Scheme
 
 - $\text{PCS.Commit}: \mathbb{F}[x] \rightarrow \mathbb{G};\ \ f \rightarrow C_f$
-  - Commits to a polynomial $f$ over $\mathbb{F}$, with commitment in group $\mathbb{G}$. When applied to a vector $\bar{x}$, the components are interpolated over the domain $\mathbb{D}$ to form $f$.
+  - Commits to a polynomial $f$ over $\mathbb{F}$, with commitment in group $\mathbb{G}$.
 
-- $\text{PCS.Open}: (\mathbb{G}, \mathbb{F}) \rightarrow (\mathbb{F}, \mathbb{\Pi});\ \ (C_f, x) \rightarrow (y, \pi)$
-  - Evaluates the committed polynomial $f$ at point $x$, returning evaluation $y$ and proof $\pi$. The proof domain $\mathbb{\Pi}$ depends on the PCS.
+- $\text{PCS.Open}: (\mathbb{G}, \mathbb{F}) \rightarrow (\mathbb{F}, \Pi);\ \ (C_f, x) \rightarrow (y,\pi)$
+  - Evaluates the committed polynomial $f$ at point $x$, returning evaluation $y$ and proof $\pi$. The proof domain $\Pi$ depends on the PCS.
 
-- $\text{PCS.Verify}: (\mathbb{G}, \mathbb{F}, \mathbb{F}, \mathbb{\Pi}) \rightarrow \mathbb{B};\ \ (C_f, x, y , \pi) \rightarrow (0|1)$
+- $\text{PCS.Verify}: (\mathbb{G}, \mathbb{F}, \mathbb{F}, \Pi) \rightarrow \mathbb{B};\ \ (C_f,x,y ,\pi) \rightarrow (0|1)$
   - Verifies whether $y = f(x)$ given the commitment $C_f$ and proof $\pi$.
 
 #### Fiat-Shamir Transform
@@ -101,85 +86,54 @@ non-interactivity and zero-knowledge properties.
 - $\text{FS}: \mathbb{S} \rightarrow \mathbb{F};\ \textbf{s} \rightarrow x$
   - Maps a serializable object $\textbf{s} \in \mathbb{S}$ to $\mathbb{F}$, typically via some cryptographically secure hash function.
 
-### 1.4. Parameters
-
-- $\square \in \mathbb{J}$
-    - Padding element, a point on the elliptic curve $\mathbb{J}$ with an unknown discrete logarithm.
-- $H \in \mathbb{J}$
-    - Pedersen blinding base, a base point used in the Pedersen commitment scheme.
-- $\overline{H} = (H, 2H, 4H, \ldots, 2^{N_{J-1}}H) \in \mathbb{J}^{N_J}$
-    - A vector of scaled multiples of $H$.
-- $S \in \tilde{\mathbb{J}} \setminus \mathbb{J}$
-    - A point in the group $\tilde{\mathbb{J}}$ but not in the subgroup $\mathbb{J}$, used as a seed for an acuumulation procedure. As the accumulation adds points in $\mathbb{J}$ the result will never be the identity.
-
-
 ---
 
 ## 2. Parameters
 
 ### 2.1. Scheme Specific
 
-- $\square \in \mathbb{J}$
-  - Padding element, a point on $\mathbb{J}$ with unknown discrete logarithm.
-- $H \in \mathbb{J}$
-  - Pedersen blinding base point.
-- $\overline{H} = (H, 2H, 4H, \ldots, 2^{N_{J-1}}H) \in \mathbb{J}^{N_J}$
-  - Vector of scaled multiples of $H$.
-- $S \in \tilde{\mathbb{J}} \setminus \mathbb{J}$
-  - Point in $\tilde{\mathbb{J}}$ used as seed for accumulation, ensuring the result is never the identity.
+- $\square \in \mathbb{J}$ -- Padding element, a point on $\mathbb{J}$ with unknown discrete logarithm.
+- $H \in \mathbb{J}$ -- Pedersen blinding base point.
+- $\overline{H} = (H, 2H, 4H, \ldots, 2^{N_{J-1}}H) \in \mathbb{J}^{N_J}$ -- Vector of scaled multiples of $H$.
+- $S \in \tilde{\mathbb{J}} \setminus \mathbb{J}$ -- Point in $\tilde{\mathbb{J}}$ used as seed for accumulation, ensuring the result is never the identity.
 
 ### 2.2. Public Data
   
-- $\overline{PK} \in \mathbb{J}^{N_K}$
-  - Vector of public keys in the ring, padded with $\square$ to length $N_K$ if needed.
+- $\overline{PK} \in \mathbb{J}^{N_K}$ -- Vector of public keys in the ring, padded with $\square$ to length $N_K$ if needed.
 
 ### 2.3. Witness Data
 
-- $t \in \mathbb{F_J}$
-  - Prover's one-time secret.
-
-- $k \in \mathbb{N}_{N_K}$
-    - Prover's index within the ring, identifying which public key in $\overline{PK}$ belongs to the prover.
+- $t \in \mathbb{F_J}$ -- Prover's one-time secret.
+- $k \in \mathbb{N}_{N_K}$ -- Prover's index within the ring, identifying which public key in $\overline{PK}$ belongs to the prover.
 
 ### 2.4. Preprocessing
  
 #### 2.4.1. Public Input Preprocessing
 
 Concatenate ring points with scaled multiples of $H$:
-
 $$\overline{P} = \overline{PK} \| \overline{H} = (P_0, \ldots, P_{N-5}) \in \mathbb{J}^{N-4}$$
-
 $$\overline{p}_x = (P_{x,0}, \ldots, P_{x,N-5}, 0, 0, 0, 0) \in \mathbb{F}^N$$
-
 $$\overline{p}_y = (P_{y,0}, \ldots, P_{y,N-5}, 0, 0, 0, 0) \in \mathbb{F}^N$$
 
 Ring items selector:
-
 $$\overline{s} = 1^{\|N_K}\ \|\ 0^{\|N-N_K} \in \mathbb{F}^N$$
 
 #### 2.4.1 Interpolation
 
 The resulting vectors are interpolated over $\mathbb{D}$:
+$$p_x = \text{Interpolate}(\overline{p}_x)$$
+$$p_y = \text{Interpolate}(\overline{p}_y)$$
+$$s = \text{Interpolate}(\overline{s})$$
 
-- $p_x = \text{Interpolate}(\overline{p}_x)$.
-- $p_y = \text{Interpolate}(\overline{p}_y)$.
-- $s = \text{Interpolate}(\overline{s})$.
+#### 2.4.2. Commit to the constructed vectors
 
-#### 2.4.2. Commit to the constructed vectors:
-
-$$C_{p_x} = \text{PCS.Commit}(\overline{p}_x)$$
-
-$$C_{p_y} = \text{PCS.Commit}(\overline{p}_y)$$
-
-$$C_s = \text{PCS.Commit}(\overline{s})$$
-
-
-
+$$C_{p_x} = \text{PCS.Commit}(p_x)$$
+$$C_{p_y} = \text{PCS.Commit}(p_y)$$
+$$C_s = \text{PCS.Commit}(s)$$
 
 ### 2.5. Relation to Prove
 
 Knowledge of $k$ and $t$ such that $R = PK_k + tH$.
-
 $$\mathfrak{R}_H = \{ (R, \overline{PK}; k, t) \mid R = PK_k + tH \,;\, R \in \mathbb{J}, \, \overline{PK} \in \mathbb{J}^{N_K}, \, k \in \mathbb{N}_{N_K}, \, t \in \mathbb{F_J} \}$$
 
 ---
@@ -190,15 +144,13 @@ $$\mathfrak{R}_H = \{ (R, \overline{PK}; k, t) \mid R = PK_k + tH \,;\, R \in \m
 
 #### 3.1.1. Bits Vector
 
-- $\overline{k} \in \mathbb{B}^{N_K}$  
-  - Binary vector representing the index $k$ in the ring. $\overline{k}$ has $N_K$ elements where $k_i = \delta_{ik}$
+- $\overline{k} \in \mathbb{B}^{N_K}$ -- Binary vector representing the index $k$ in the ring. $\overline{k}$ has $N_K$ elements where $k_i = \delta_{ik}$
 
-- $\overline{t} \in \mathbb{B}^{N_J}$
-  - Binary representation of the secret scalar $t$, with $t_i$ representing the $i$-th bit of $t$ in little-endian order, i.e., $t = \sum t_i 2^i$, for $i \in \mathbb{N}_{N_J}$
+- $\overline{t} \in \mathbb{B}^{N_J}$ -- Binary representation of the secret scalar $t$, with $t_i$ representing the $i$-th bit of $t$ in little-endian order, i.e., $t = \sum t_i 2^i$, for $i \in \mathbb{N}_{N_J}$
 
-The bits vector $\overline{b}$ is constructed by concatenating the binary vectors $\overline{k}$ and $\overline{t}$, followed by a single 0 and three random values:
+The bits vector $\overline{b}$ is constructed by concatenating $\overline{k}$ and $\overline{t}$, followed by a single 0.
 
-$$\overline{b} = (\overline{k} \| \overline{t} \| (0)$$
+$$\overline{b} = \overline{k} \| \overline{t} \| (0)$$
 
 #### 3.1.2. Conditional Sum Accumulator Vectors
 
@@ -210,7 +162,6 @@ $$
 - The accumulator is updated at each index $i$ based on the previous value and the product of $b_{i-1}$ and $P_{i-1}$.
 
 The resulting accumulator points are finally separated into $x$ and $y$ coordinates:
-
 $$
 (\overline{acc}_x, \overline{acc}_y) = \text{unzip}(\overline{ACC})
 $$
@@ -218,20 +169,25 @@ $$
 #### 3.1.3. Inner Product Accumulator Vector
 
 $$
-  acc_{ip_0} = 0, \quad acc_{ip_i} = acc_{ip_{i-1}} + b_{i-1}s_{i-1}, \quad i = 1, \ldots, N-4
+acc_{ip_0} = 0, \quad acc_{ip_i} = acc_{ip_{i-1}} + b_{i-1}s_{i-1}, \quad i = 1, \ldots, N-4
 $$
 
 - The accumulator is initialized with $0$.
 - The accumulator is updated at each index $i$ based on the previous value and the product of $b_{i-1}$ and $s_{i-1}$
 
-#### 3.1.4. Interpolation
+#### 3.1.4. Interpolation and Commitments
 
-The resulting vectors are interpolated over $\mathbb{D}$ with three random values $r_i$ appended as padding for the final entries. This padding helps obscure the resulting polynomial, even when committing to identical witness values.
+The resulting vectors are interpolated over $\mathbb{D}$ with random values $\{r_i\}$ appended as padding for the final entries. This padding helps obscure the resulting polynomial, even when committing to identical witness values.
+$$b = \text{Interpolate}(\overline{b} \| (r_1, r_2, r_3))$$
+$$acc_x = \text{Interpolate}(\overline{acc}_x \| (r_4, r_5, r_6))$$
+$$acc_y = \text{Interpolate}(\overline{acc}_y \| (r_7, r_8, r_9))$$
+$$acc_{ip} = \text{Interpolate}(\overline{acc}_{ip} \| (r_{10}, r_{11}, r_{12}))$$
 
-- $b = \text{Interpolate}(\overline{b} \| (r_1, r_2, r_3))$.
-- $acc_x = \text{Interpolate}(\overline{acc}_x \| (r_1, r_3, r_3))$.
-- $acc_y = \text{Interpolate}(\overline{acc}_y \| (r_1, r_3, r_3))$.
-- $acc_{ip} = \text{Interpolate}(\overline{acc}_{ip} \| (r_1, r_3, r_3))$.
+Commit to the witness derived polynomials:
+$$C_b = \text{PCS.Commit}(b)$$
+$$C_{acc_{ip}} = \text{PCS.Commit}(acc_{ip})$$
+$$C_{acc_x} = \text{PCS.Commit}(acc_x)$$
+$$C_{acc_y} = \text{PCS.Commit}(acc_y)$$
 
 ### 3.2. Constraints
 
@@ -251,21 +207,16 @@ The factor $(x - \omega^{N-4})$ ensures the constraint holds at all points inclu
 
 #### 3.2.2. Conditional Addition
 
-$$
-\begin{aligned}
+$$\begin{aligned}
 c_2(x) = & \biggl( b(x) \Bigl( \bigl(acc_x(x) - p_x(x)\bigr)^2 \bigl(acc_x(x) + p_x(x) + acc_x(\omega x)\bigr) \\
          & \quad - \bigl(p_y(x) - acc_y(x)\bigr)^2 \Bigr) \\
-         & + \bigl(1 - b(x)\bigr) \bigl(acc_x(\omega x) - acc_x(x)\bigr) \biggr) \times (x - \omega^{N-4})
-\end{aligned}
-$$
-
-$$
-\begin{aligned}
+         & + \bigl(1 - b(x)\bigr) \bigl(acc_x(\omega x) - acc_x(x)\bigr) \biggr) \times (x - \omega^{N-4}) \\
+\end{aligned}$$
+$$\begin{aligned}
 c_3(x) = & \biggl( b(x) \Bigl( \bigl(acc_x(x) - p_x(x)\bigr)\bigl(acc_y(\omega x) + acc_y(x)\bigr) \\
          & \quad - \bigl(p_y(x) - acc_y(x)\bigr)\bigl(acc_x(\omega x) - acc_x(x)\bigr) \Bigr) \\
          & + \bigl(1 - b(x)\bigr) \bigl(acc_x(\omega x) - acc_x(x)\bigr) \biggr) \times (x - \omega^{N-4})
-\end{aligned}
-$$
+\end{aligned}$$
 
 These constraints enforce correct elliptic curve addition for the $x$ and $y$ components, respectively, controlled by the Boolean variable $b(x)$:
 
@@ -276,169 +227,106 @@ The factor $(x - \omega^{N-4})$ nullifies the constraint at $x = \omega^{N-4}$, 
 
 #### 3.2.3. Booleanity
 
-$$
-c_3(x) = b(x)\bigl(1 - b(x)\bigr)
-$$
+$$c_3(x) = b(x)\bigl(1 - b(x)\bigr)$$
 
 Ensures that the polynomial $b(x)$ acts as a Boolean variable, taking only values 0 or 1.
 
-- If $b(x) = 0$ or $b(x) = 1$, then $c_3(x) = 0$.
-- If $b(x)$ takes any value other than 0 or 1, $c_3(x)$ will be non-zero, violating the constraint.
+- **If** $b(x) = 0$ or $b(x) = 1$, then $c_3(x) = 0$.
+- **If** $b(x)$ takes any value other than 0 or 1, $c_3(x)$ will be non-zero, violating the constraint.
 
 #### 3.2.4. Conditional Addition Boundary
 
 Given the seed point $S = (s_x, s_y)$ and the expected result delta from the seed point $R = (r_x, r_y)$, the constraints are:
-
-$$
-c_5(x) = \bigl(acc_x(x) - s_x\bigr)L_0(x) + \bigl(acc_x(x) - r_x - s_x\bigr)L_{N-4}(x)
-$$
-
-$$
-c_6(x) = \bigl(acc_y(x) - s_y\bigr)L_0(x) + \bigl(acc_y(x) - r_y - s_y\bigr)L_{N-4}(x)
-$$
+$$c_5(x) = \bigl(acc_x(x) - s_x\bigr)L_0(x) + \bigl(acc_x(x) - r_x - s_x\bigr)L_{N-4}(x)$$
+$$c_6(x) = \bigl(acc_y(x) - s_y\bigr)L_0(x) + \bigl(acc_y(x) - r_y - s_y\bigr)L_{N-4}(x)$$
 
 These constraints ensure the accumulator components take specific values at the conditional addition boundaries:
 
 - **At** $x = \omega^0$: $L_0(x) = 1$ and $L_{N-4}(x) = 0$, enforcing $acc_x(\omega^0) = s_x$ and $acc_y(\omega^0) = s_y$.
 - **At** $x = \omega^{N-4}$: $L_0(x) = 0$ and $L_{N-4}(x) = 1$, enforcing $acc_x(\omega^{N-4}) = r_x + s_x$ and $acc_y(\omega^{N-4}) = r_y + s_y$.
 
-
 #### 3.2.5. Inner Product Boundary
 
-$$
-c_7(x) = acc_{ip}(x)L_0(x) + \bigl(acc_{ip}(x) - 1\bigr)L_{N-4}(x)
-$$
+$$c_7(x) = acc_{ip}(x)L_0(x) + \bigl(acc_{ip}(x) - 1\bigr)L_{N-4}(x)$$
 
 This constraint ensure the accumulator components take specific values at the conditional addition boundaries:
 
 - **At** $x = \omega^0$: $L_0(x) = 1$ and $L_{N-4}(x) = 0$, enforcing $acc_{ip}(\omega^0) = 0$.
 - **At** $x = \omega^{N-4}$: $L_0(x) = 0$ and $L_{N-4}(x) = 1$, enforcing $acc_{ip}(\omega^{N-4}) =1$.
 
-### 3.3 - Commitments and Sampling
+### 3.3. Constraints Aggregation
 
-#### 3.3.1 - Compute Commitments
-
-Commit to the witness derived polynomials:
-
-$$
-\begin{align*}
-C_b &= \text{PCS.Commit}(b) \\
-C_{acc_{ip}} &= \text{PCS.Commit}(acc_{ip}) \\
-C_{acc_x} &= \text{PCS.Commit}(acc_x) \\
-C_{acc_y} &= \text{PCS.Commit}(acc_y)
-\end{align*}
-$$
-
-#### 3.3.2. Constraints Aggregation Polynomial
+#### 3.3.1. Aggregation Polynomial
 
 The protocol aggregates all constraints into a single polynomial for efficiency.
 
 Using the Fiat-Shamir heuristic, sample the aggregation coefficients:
-
-$$
-\{\alpha_i\}_{i=1}^7 \leftarrow \text{FS}(C_b, C_{acc_{ip}}, C_{acc_x}, C_{acc_y})
-$$
+$$\{\alpha_i\}_{i=1}^7 \leftarrow \text{FS}(C_b, C_{acc_{ip}}, C_{acc_x}, C_{acc_y})$$
 
 Construct the aggregated polynomial:
-
-$$
-c(x) = \left(\sum_{i=1}^7 \alpha_i c_i(x)\right) \cdot \prod_{k=1}^3 \left(x - \omega^{N-k}\right)
-$$
+$$c(x) = \left(\sum_{i=1}^7 \alpha_i c_i(x)\right) \cdot \prod_{k=1}^3 \left(x - \omega^{N-k}\right)$$
 
 The factor $\prod_{k=1}^3 \left(x - \omega^{N-k}\right)$ ensures that $c(x)$ vanishes at the last three points of the domain, thereby enforcing the constraints across the entire evaluation domain, including the last three points where random evaluation values were used during the witness polynomials interpolation phase.
 
-#### 3.3.3. Quotient Polynomial
+#### 3.3.2. Quotient Polynomial
 
 The quotient polynomial is computed as:
-
-$$
-q(x) = \frac{c(x)}{x^N - 1}
-$$
+$$q(x) = \frac{c(x)}{x^N - 1}$$
 
 Dividing by $X^N - 1$ ensures that the aggregated constraints encoded in $c(x)$ are enforced consistently across the entire evaluation domain $\mathbb{D}$ while reducing the degree of the polynomial.
 
-#### 3.3.5. Quotient Polynomial Commitment and Challenge
+#### 3.3.3. Quotient Polynomial Commitment and Challenge
 
 The prover commits to the quotient polynomial $q$:
-$$
-C_q = \text{PCS.Commit}(q)
-$$
+$$C_q = \text{PCS.Commit}(q)$$
 
-The prover receives the evaluation point $\zeta$ in reponse:
+The prover receives the evaluation point $\zeta$ in response:
+$$\zeta \leftarrow \text{FS}(C_q)$$
 
-$$
-\zeta \leftarrow \text{FS}(C_q)
-$$
-
-#### 3.3.6. Relevant Polynomials Evaluation
+#### 3.3.4. Relevant Polynomials Evaluation
 
 Evaluate the relevant polynomials at the sampled evaluation point $\zeta$:
+$$p_{x,\zeta} = p_x(\zeta)$$
+$$p_{y,\zeta} = p_y(\zeta)$$
+$$s_\zeta = s(\zeta)$$
+$$b_\zeta = b(\zeta)$$
+$$acc_{ip,\zeta} = acc_{ip}(\zeta)$$
+$$acc_{x,\zeta} = acc_x(\zeta)$$
+$$acc_{y,\zeta} = acc_y(\zeta)$$
 
-$$p_{x,\zeta}=p_x(\zeta)$$
-
-$$p_{y,\zeta}=p_y(\zeta)$$
-
-$$s_\zeta=s(\zeta)$$
-
-$$b_\zeta=b(\zeta)$$
-
-$$acc_{ip,\zeta}=acc_{ip}(\zeta)$$
-
-$$acc_{x,\zeta}=acc_x(\zeta)$$
-
-$$acc_{y,\zeta}=acc_y(\zeta)$$
-
-#### 3.3.7. Linearization Polynomial
+#### 3.3.5. Linearization Polynomial
 
 The linearization polynomials are constructed to enable the verifier to evaluate certain parts of the constraint polynomials at $\zeta \omega$ while independently reconstructing the evaluation of $q$ at $\zeta$ using the "relevant polynomial evaluations" provided by the prover as part of the proof.
 
 In particular we require these contributions just for the accumulators contraints.
 
 Accumulator inner product ($c_1$) contribution:
-
 $$l_1(x)=(\zeta - \omega^{N-4})acc_{ip}(x)$$
 
 Conditional addition accumulators ($c_{2,3}$) contributions:
-
 $$l_2(x)=(\zeta-\omega^{N-4})\bigl(b_\zeta(acc_{x,\zeta}-p_{x,\zeta})^2acc_x(x)+(1-b_\zeta)acc_y(x)\bigr)$$
-
 $$l_3(x)=(\zeta-\omega^{N-4})\Bigl(\bigl(b_\zeta(acc_{y,\zeta}-p_{y,\zeta})+1-b_\zeta\bigr)acc_x(x)+b_\zeta(acc_{x,\zeta}-p_{x,\zeta})acc_y(x)\Bigr)$$
 
 Linearized constraints are aggregated using $\{\alpha_i\}$ coefficients and evaluated at $\zeta \omega$:
-
 $$l(x)=\sum_{i=1}^3\alpha_i l_i(x)$$
-
 $$l_{\zeta\omega}=l(\zeta\omega)$$
 
-#### 3.3.8. Sample aggregation coefficients
+#### 3.3.6. Sample Aggregation Coefficients
 
 Sample the aggregation coefficients $\{\nu_i\}$ using the Fiat-Shamir heuristic and compute the aggregate polynomial $agg$:
-
-$$
-\{\nu_i\}_{i=1}^8 \leftarrow \text{FS}(p_{x,\zeta}, p_{y,\zeta}, s_\zeta, b_\zeta, acc_{ip,\zeta}, acc_{x,\zeta}, acc_{y,\zeta}, l_{\zeta\omega})
-$$
+$$\{\nu_i\}_{i=1}^8 \leftarrow \text{FS}(p_{x,\zeta}, p_{y,\zeta}, s_\zeta, b_\zeta, acc_{ip,\zeta}, acc_{x,\zeta}, acc_{y,\zeta}, l_{\zeta\omega})$$
 
 Construct the aggregate polynomial:
+$$agg(x)=\nu_1p_x(x)+\nu_2p_y(x)+\nu_3s(x)+\nu_4b(x)+\nu_5acc_{ip}(x)+\nu_6acc_x(x)+\nu_7acc_y(x)+\nu_8q(x)$$
 
-$$
-agg(x)=\nu_1p_x(x)+\nu_2p_y(x)+\nu_3s(x)+\nu_4b(x)+\nu_5acc_{ip}(x)+\nu_6acc_x(x)+\nu_7acc_y(x)+\nu_8q(x)
-$$
-
-#### 3.3.9. Proof Construction
+#### 3.3.7. Proof Construction
 
 Open the aggregate polynomial $agg$ at $\zeta$ and the linearization polynomial $l$ at $\zeta\omega$:
-
 $$\Pi_\zeta = \text{PCS.Open}(agg,\zeta)$$
-
 $$\Pi_{\zeta\omega} = \text{PCS.Open}(l,\zeta\omega)$$
 
 Construct the proof as follows:
-
 $$\Pi=(C_b,C_{acc_{ip}},C_{acc_x},C_{acc_y},p_{x,\zeta},p_{y,\zeta},s_\zeta,b_\zeta,acc_{ip,\zeta},acc_{x,\zeta},acc_{y,\zeta},C_q,l_{\zeta\omega},\Pi_\zeta,\Pi_{\zeta\omega})$$
-
-- Commitments: $C_b, C_{acc_{ip}}, C_{acc_x}, C_{acc_y}, C_q$
-- Relevant evaluations: $p_{x,\zeta}, p_{y,\zeta}, s_\zeta, b_\zeta, acc_{ip,\zeta}, acc_{x,\zeta}, acc_{y,\zeta}$
-- Opening proofs: $\Pi_\zeta, \Pi_{\zeta\omega}$
 
 ---
 
@@ -446,17 +334,13 @@ $$\Pi=(C_b,C_{acc_{ip}},C_{acc_x},C_{acc_y},p_{x,\zeta},p_{y,\zeta},s_\zeta,b_\z
 
 ### 4.1. Inputs
 
-Commitments to the ring public keys and the selector, prepared during the pre-processing phase.
-
+Commitments to the ring public keys and the selector, prepared during the pre-processing phase:
 $$(C_{p_x}, C_{p_y}, C_s)$$
 
- 
-The claimed accumulation result, allegedly $PK_k + tH$ for some $k$ and $t$ known to the prover. This is the primary element to be assessed.
-
+The claimed accumulation result, allegedly $PK_k + tH$ for some $k$ and $t$ known to the prover. This is the primary element to be assessed:
 $$R = (r_x, r_y)$$
 
-Proof which contains all the necessary commitments, evaluations, and openings needed for the verifier to perform the validation checks.
-
+Proof which contains all the necessary commitments, evaluations, and openings needed for the verifier to perform the validation checks:
 $$
 \Pi = (C_b, C_{acc_{ip}}, C_{acc_x}, C_{acc_y}, p_{x,\zeta}, p_{y,\zeta}, s_\zeta, b_\zeta, ip_{\zeta}, ac_{x,\zeta}, ac_{y,\zeta}, C_q, l_{\zeta\omega}, \Pi_\zeta, \Pi_{\zeta\omega})
 $$
@@ -466,29 +350,19 @@ $$
 #### 4.2.1. Fiat-Shamir Challenges
 
 Recovery of aggregation coefficients and evaluation point:
-
 $$\{\alpha_i\}_{i=1}^7 \leftarrow \text{FS}(C_b, C_{ip}, C_{acc_x}, C_{acc_y})$$
-
 $$\zeta \leftarrow \text{FS}(C_q)$$
-
 $$\{\nu_i\}_{i=1}^8 \leftarrow \text{FS}(p_{x,\zeta}, p_{y,\zeta}, s_\zeta, b_\zeta, acc_{ip,\zeta}, acc_{x,\zeta}, acc_{y,\zeta}, l_{\zeta\omega})$$
 
 #### 4.2.2. Contributions to the Constraints Evaluated at $\zeta$
 
 The following expressions represent the contributions to the constraint polynomials evaluated at the point $\zeta$:
-
 $$\tilde{c}_{1,\zeta}=-(acc_{ip,\zeta}+b_\zeta s_\zeta)(\zeta-\omega^{N-4})$$
-
 $$\tilde{c}_{2,\zeta}=\left\{b_\zeta\left[(acc_{x,\zeta}-p_{x,\zeta})^2(acc_{x,\zeta}+p_{x,\zeta})-(p_{y,\zeta}-acc_{y,\zeta})^2\right]-(1-b_\zeta)acc_{y,\zeta}\right\}(\zeta-\omega^{N-4})$$
-
 $$\tilde{c}_{3,\zeta}=\left\{b_\zeta\left[(acc_{x,\zeta}-p_{x,\zeta})acc_{y,\zeta}+(p_{y,\zeta}-acc_{y,\zeta})acc_{x,\zeta}\right]-(1-b_\zeta)acc_{x,\zeta}\right\}(\zeta-\omega^{N-4})$$
-
 $$c_4=b_{\zeta}(1-b_{\zeta})$$
-
 $$c_5=(acc_{x,\zeta}-s_x)L_0(\zeta)+(acc_{x,\zeta}-r_x-s_x)L_{N-4}(\zeta)$$
-
 $$c_6=(acc_{y,\zeta}-s_y)L_0(\zeta)+(acc_{y,\zeta}-r_y-s_y)L_{N-4}(\zeta)$$
-
 $$c_7=acc_{ip,\zeta}L_0(\zeta)+(acc_{ip,\zeta}-1)L_{N-4}(\zeta)$$
 
 **Note:** The tilde ( $\tilde{}$ ) above the first three polynomials indicates that these are only partial contributions, representing the components evaluated at $\zeta$. The components evaluated at $\zeta \omega$ are added later by the linearization aggregated polynomial found within the proof ($l_{\zeta\omega}$).
@@ -496,40 +370,29 @@ $$c_7=acc_{ip,\zeta}L_0(\zeta)+(acc_{ip,\zeta}-1)L_{N-4}(\zeta)$$
 #### 4.2.3. Evaluation of the Quotient Polynomial at $\zeta$
 
 Aggregate the contributions along with the linearization polynomial evaluated at $\zeta \omega$ to compute the evaluation of the quotient polynomial at $\zeta$:
-
 $$q_{\zeta}=\frac{(\sum_{i=1}^7\alpha_ic_i+l_{\zeta\omega})\prod_{k=1}^3(\zeta-\omega^{N-k})}{\zeta^N-1}$$
    
 Compute the aggregate commitment $C_{agg}$ using the aggregation coefficients $\nu_i$:
-
 $$C_{agg} = \nu_1 C_{p_x} + \nu_2 C_{p_y} + \nu_3 C_s + \nu_4 C_b + \nu_5 C_{acc_{ip}} + \nu_6 C_{acc_x} + \nu_7 C_{acc_y} + \nu_8 C_q$$
   
-
 Compute the aggregate evaluation $agg_\zeta$ using the same coefficients:
-
 $$agg_\zeta = \nu_1 p_{x,\zeta} + \nu_2 p_{y,\zeta} + \nu_3 s_\zeta + \nu_4 b_\zeta + \nu_5 acc_{ip,\zeta} + \nu_6 acc_{x,\zeta} + \nu_7 acc_{y,\zeta} + \nu_8 q_\zeta$$
 
 Verify the aggregate polynomial opening at $\zeta$ using $\Pi_\zeta$:
-
 $$\text{PCS.Verify}(C_{agg}, \zeta, agg_\zeta, \Pi_\zeta)$$
 
 #### 4.2.4. Evaluation of the Linearization Polynomial at $\zeta \omega$
 
 Compute the individual linearization polynomial commitments:
-
 $$C_{l_1}=(\zeta-\omega^{N-4})C_{acc_{ip}}$$
-
 $$C_{l_2}=(\zeta-\omega^{N-4})\left(b_\zeta(acc_{x,\zeta}-p_{x,\zeta})^2C_{acc_x}+(1-b_\zeta)C_{acc_y}\right)$$
-
 $$C_{l_3}=(\zeta-\omega^{N-4})\left(\left(b_\zeta(acc_{y,\zeta}-p_{y,\zeta})+1-b_\zeta\right)C_{acc_x}+b_\zeta(acc_{x,\zeta}-p_{x,\zeta}) C_{acc_y}\right)$$
 
 Aggregate the linearization polynomial commitments using $\{\alpha_i\}$ coefficients.
-
 $$C_l=\sum_{i=1}^3\alpha_iC_{l_i}$$
 
 Verify the aggregate linearization polynomial opening at $\zeta \omega$ using $\Pi_{\zeta\omega}$:
-
 $$\text{PCS.Verify}(C_{l},\zeta\omega,l_{\zeta\omega},\Pi_{\zeta\omega})$$
-
 
 ## 5. Acknowledgements
 
@@ -539,7 +402,6 @@ and reference implementation, as cited in the references.
 
 ## 6. References
 
-- These notes on hackmd: https://hackmd.io/@davxy/r1SVPqQc0.
-- Sergey Vasilyev original writeup: https://hackmd.io/ulW5nFFpTwClHsD0kusJAA
-- W3F reference implementation: https://github.com/w3f/ring-proof
-
+- These notes on hackmd: `https://hackmd.io/@davxy/r1SVPqQc0`.
+- Sergey Vasilyev original writeup: `https://hackmd.io/ulW5nFFpTwClHsD0kusJAA`
+- W3F reference implementation: `https://github.com/w3f/ring-proof`
