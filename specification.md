@@ -1,6 +1,6 @@
 # Ring Proof Specification
 
-22-08-2024-draft-6
+26-08-2024-draft-7
 
 ## *Abstract*
 
@@ -62,28 +62,28 @@ non-interactivity and zero-knowledge properties.
 
 #### Unzip
 
-- $\text{unzip}: \mathbb{J}^k \rightarrow (\mathbb{F}^k, \mathbb{F}^k);\ \ \overline{p} \rightarrow (\overline{p}_x, \overline{p}_y)$
+- $\text{unzip}: \mathbb{J}^k \to (\mathbb{F}^k, \mathbb{F}^k);\ \ \overline{p} \mapsto (\overline{p}_x, \overline{p}_y)$
   - Given a vector $\overline{p}$ of $k$ elliptic curve points, $\text{unzip}$ separates $\overline{p}$ into two vectors: $\overline{p}_x$ and $\overline{p}_y$, containing the $x$ and $y$ coordinates of each point, respectively.
 
 #### Polynomial Interpolation
 
-- $\text{Interpolate}: \mathbb{F}^k \rightarrow \mathbb{F}[x]^{< k};\ \ \overline{x} \rightarrow f$ 
+- $\text{Interpolate}: \mathbb{F}^k \to \mathbb{F}[x]^{< k};\ \ \overline{x} \mapsto f$ 
   - Construct a polynomial by interpolating the vector values over $\mathbb{D}$
 
 #### Polynomial Commitment Scheme
 
-- $\text{PCS.Commit}: \mathbb{F}[x] \rightarrow \mathbb{G};\ \ f \rightarrow C_f$
+- $\text{PCS.Commit}: \mathbb{F}[x] \to \mathbb{G};\ \ f \mapsto C_f$
   - Commits to a polynomial $f$ over $\mathbb{F}$, with commitment in group $\mathbb{G}$.
 
-- $\text{PCS.Open}: (\mathbb{G}, \mathbb{F}) \rightarrow (\mathbb{F}, \Pi);\ \ (C_f, x) \rightarrow (y,\pi)$
+- $\text{PCS.Open}: (\mathbb{G}, \mathbb{F}) \to (\mathbb{F}, \Pi);\ \ (C_f, x) \mapsto (y,\pi)$
   - Evaluates the committed polynomial $f$ at point $x$, returning evaluation $y$ and proof $\pi$. The proof domain $\Pi$ depends on the PCS.
 
-- $\text{PCS.Verify}: (\mathbb{G}, \mathbb{F}, \mathbb{F}, \Pi) \rightarrow \mathbb{B};\ \ (C_f,x,y ,\pi) \rightarrow (0|1)$
+- $\text{PCS.Verify}: (\mathbb{G}, \mathbb{F}, \mathbb{F}, \Pi) \to \mathbb{B};\ \ (C_f,x,y ,\pi) \mapsto (0|1)$
   - Verifies whether $y = f(x)$ given the commitment $C_f$ and proof $\pi$.
 
 #### Fiat-Shamir Transform
 
-- $\text{FS}: \mathbb{S} \rightarrow \mathbb{F};\ \textbf{s} \rightarrow x$
+- $\text{FS}: \mathbb{S} \to \mathbb{F};\ \textbf{s} \mapsto x$
   - Maps a serializable object $\textbf{s} \in \mathbb{S}$ to $\mathbb{F}$, typically via some cryptographically secure hash function.
 
 ---

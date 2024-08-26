@@ -55,7 +55,7 @@
 \hypertarget{ring-proof-specification}{%
 \section{Ring Proof Specification}\label{ring-proof-specification}}
 
-22-08-2024-draft-6
+26-08-2024-draft-7
 
 \hypertarget{abstract}{%
 \subsection{\texorpdfstring{\emph{Abstract}}{Abstract}}\label{abstract}}
@@ -176,7 +176,7 @@ Polynomials}\label{lagrange-basis-polynomials}}
 \begin{itemize}
 \tightlist
 \item
-  \(\text{unzip}: \mathbb{J}^k \rightarrow (\mathbb{F}^k, \mathbb{F}^k);\ \ \overline{p} \rightarrow (\overline{p}_x, \overline{p}_y)\)
+  \(\text{unzip}: \mathbb{J}^k \to (\mathbb{F}^k, \mathbb{F}^k);\ \ \overline{p} \mapsto (\overline{p}_x, \overline{p}_y)\)
 
   \begin{itemize}
   \tightlist
@@ -194,7 +194,7 @@ Polynomials}\label{lagrange-basis-polynomials}}
 \begin{itemize}
 \tightlist
 \item
-  \(\text{Interpolate}: \mathbb{F}^k \rightarrow \mathbb{F}[x]^{< k};\ \ \overline{x} \rightarrow f\)
+  \(\text{Interpolate}: \mathbb{F}^k \to \mathbb{F}[x]^{< k};\ \ \overline{x} \mapsto f\)
 
   \begin{itemize}
   \tightlist
@@ -211,7 +211,7 @@ Scheme}\label{polynomial-commitment-scheme}}
 \begin{itemize}
 \tightlist
 \item
-  \(\text{PCS.Commit}: \mathbb{F}[x] \rightarrow \mathbb{G};\ \ f \rightarrow C_f\)
+  \(\text{PCS.Commit}: \mathbb{F}[x] \to \mathbb{G};\ \ f \mapsto C_f\)
 
   \begin{itemize}
   \tightlist
@@ -220,7 +220,7 @@ Scheme}\label{polynomial-commitment-scheme}}
     in group \(\mathbb{G}\).
   \end{itemize}
 \item
-  \(\text{PCS.Open}: (\mathbb{G}, \mathbb{F}) \rightarrow (\mathbb{F}, \Pi);\ \ (C_f, x) \rightarrow (y,\pi)\)
+  \(\text{PCS.Open}: (\mathbb{G}, \mathbb{F}) \to (\mathbb{F}, \Pi);\ \ (C_f, x) \mapsto (y,\pi)\)
 
   \begin{itemize}
   \tightlist
@@ -230,7 +230,7 @@ Scheme}\label{polynomial-commitment-scheme}}
     on the PCS.
   \end{itemize}
 \item
-  \(\text{PCS.Verify}: (\mathbb{G}, \mathbb{F}, \mathbb{F}, \Pi) \rightarrow \mathbb{B};\ \ (C_f,x,y ,\pi) \rightarrow (0|1)\)
+  \(\text{PCS.Verify}: (\mathbb{G}, \mathbb{F}, \mathbb{F}, \Pi) \to \mathbb{B};\ \ (C_f,x,y ,\pi) \mapsto (0|1)\)
 
   \begin{itemize}
   \tightlist
@@ -246,7 +246,7 @@ Scheme}\label{polynomial-commitment-scheme}}
 \begin{itemize}
 \tightlist
 \item
-  \(\text{FS}: \mathbb{S} \rightarrow \mathbb{F};\ \textbf{s} \rightarrow x\)
+  \(\text{FS}: \mathbb{S} \to \mathbb{F};\ \textbf{s} \mapsto x\)
 
   \begin{itemize}
   \tightlist
