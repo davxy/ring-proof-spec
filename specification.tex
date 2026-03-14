@@ -63,8 +63,8 @@ Author: Davide Galassi
 
 \subsection{\texorpdfstring{\emph{Abstract}}{Abstract}}\label{abstract}
 
-This document describes a cryptographic scheme based on SNARKs (Succinct
-Non-Interactive Arguments of Knowledge) that enables a prover to
+This document specifies the SNARK component originally designed as part
+of the Ring VRF construction {[}1{]}. The scheme enables a prover to
 demonstrate knowledge of a secret scalar \(t\) and a secret index \(k\)
 within a group of public keys, where each public key is a point on an
 elliptic curve. The scheme ensures that, when combined with a public
@@ -252,6 +252,10 @@ size and verification cost.
     function.
   \end{itemize}
 \end{itemize}
+
+The reference implementation uses \texttt{ark-transcript}, a Merlin-like
+transcript based on SHAKE128 that appends the length of the serialized
+object (rather than prepending it as Merlin does).
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
@@ -704,16 +708,21 @@ writeup and reference implementation, as cited in the references.
 
 \subsection{6. References}\label{references}
 
-\begin{itemize}
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
 \tightlist
 \item
-  These notes on hackmd: \texttt{https://hackmd.io/@davxy/r1SVPqQc0}.
+  J. Burdges, O. Ciobotaru, H. Kilinc Alper, A. Stewart, S. Vasilyev.
+  ``Ring Verifiable Random Functions and Zero-Knowledge Continuations'',
+  2023. \texttt{https://eprint.iacr.org/2023/002}
 \item
-  Sergey Vasilyev original writeup:
-  \texttt{https://hackmd.io/ulW5nFFpTwClHsD0kusJAA}
+  Reference implementation:
+  \texttt{https://github.com/paritytech/ring-proof}
 \item
-  W3F reference implementation:
-  \texttt{https://github.com/w3f/ring-proof}
-\end{itemize}
+  fflonk (KZG variant): \texttt{https://crates.io/crates/fflonk}
+\item
+  ark-transcript (Fiat-Shamir):
+  \texttt{https://crates.io/crates/ark-transcript}
+\end{enumerate}
 
 \end{document}
