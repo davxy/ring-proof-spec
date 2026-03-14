@@ -179,7 +179,7 @@ $$
 
 #### 3.1.4. Interpolation and Commitments
 
-The resulting vectors are interpolated over $\mathbb{D}$ with random values $\{r_i\}$ appended as padding for the final entries. This padding helps obscure the resulting polynomial, even when committing to identical witness values.
+In hiding (zero-knowledge) mode, the resulting vectors are interpolated over $\mathbb{D}$ with random values $\{r_i\}$ occupying the last 3 domain positions ($N-3$, $N-2$, $N-1$). These positions are unconstrained and serve to randomize the witness polynomials, preventing information leakage through polynomial commitments.
 $$b = \text{Interpolate}(\overline{b} \| (r_1, r_2, r_3))$$
 $$acc_x = \text{Interpolate}(\overline{acc}_x \| (r_4, r_5, r_6))$$
 $$acc_y = \text{Interpolate}(\overline{acc}_y \| (r_7, r_8, r_9))$$
@@ -268,7 +268,7 @@ $$\{\alpha_i\}_{i=1}^7 \leftarrow \text{FS}(C_b, C_{acc_{ip}}, C_{acc_x}, C_{acc
 Construct the aggregated polynomial:
 $$c(x) = \left(\sum_{i=1}^7 \alpha_i c_i(x)\right) \cdot \prod_{k=1}^3 \left(x - \omega^{N-k}\right)$$
 
-The factor $\prod_{k=1}^3 \left(x - \omega^{N-k}\right)$ ensures that $c(x)$ vanishes at the last three points of the domain, thereby enforcing the constraints across the entire evaluation domain, including the last three points where random evaluation values were used during the witness polynomials interpolation phase.
+In hiding mode, the factor $\prod_{k=1}^3 \left(x - \omega^{N-k}\right)$ zeros out the aggregated constraints at the 3 randomized domain positions, ensuring the quotient polynomial $q(x)$ is well-formed despite these unconstrained rows. This factor is not present in non-hiding mode.
 
 #### 3.3.2. Quotient Polynomial
 
