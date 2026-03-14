@@ -1,5 +1,7 @@
 # Ring Proof Specification
 
+Author: Davide Galassi
+
 26-08-2024-draft-7
 
 ## *Abstract*
@@ -95,7 +97,7 @@ non-interactivity and zero-knowledge properties.
 - $\square \in \mathbb{J}$ -- Padding element, a point on $\mathbb{J}$ with unknown discrete logarithm.
 - $H \in \mathbb{J}$ -- Pedersen blinding base point.
 - $\overline{H} = (H, 2H, 4H, \ldots, 2^{N_{J-1}}H) \in \mathbb{J}^{N_J}$ -- Vector of scaled multiples of $H$.
-- $S \in \tilde{\mathbb{J}} \setminus \mathbb{J}$ -- Point in $\tilde{\mathbb{J}}$ used as seed for accumulation, ensuring the result is never the identity.
+- $S \in \mathbb{J}$ -- Seed point for accumulation, with unknown discrete logarithm. Choosing $S \in \tilde{\mathbb{J}} \setminus \mathbb{J}$ is strongly recommended as it guarantees the accumulator never reaches the identity element.
 
 ### 2.2. Public Data
   
