@@ -11,7 +11,7 @@ the Ring VRF construction [1]. The scheme enables a prover to demonstrate
 knowledge of a secret scalar $t$ and a secret index $k$ within a group of
 public keys, where each public key is a point on an elliptic curve. The scheme
 ensures that, when combined with a public elliptic curve point $H$, the relation
-$R = PK_k + t·H$ is satisfied. It leverages elliptic curve operations,
+$R = PK_k + t \cdot H$ is satisfied. It leverages elliptic curve operations,
 a polynomial commitment scheme, and the Fiat-Shamir heuristic to achieve
 non-interactivity and zero-knowledge properties.
 
