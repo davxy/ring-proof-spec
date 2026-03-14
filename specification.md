@@ -120,14 +120,14 @@ $$\overline{p}_y = (P_{y,0}, \ldots, P_{y,N-5}, 0, 0, 0, 0) \in \mathbb{F}^N$$
 Ring items selector:
 $$\overline{s} = 1^{\|N_K}\ \|\ 0^{\|N-N_K} \in \mathbb{F}^N$$
 
-#### 2.4.1 Interpolation
+#### 2.4.2. Interpolation
 
 The resulting vectors are interpolated over $\mathbb{D}$:
 $$p_x = \text{Interpolate}(\overline{p}_x)$$
 $$p_y = \text{Interpolate}(\overline{p}_y)$$
 $$s = \text{Interpolate}(\overline{s})$$
 
-#### 2.4.2. Commit to the constructed vectors
+#### 2.4.3. Commit to the constructed vectors
 
 $$C_{p_x} = \text{PCS.Commit}(p_x)$$
 $$C_{p_y} = \text{PCS.Commit}(p_y)$$
