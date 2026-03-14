@@ -114,6 +114,8 @@ non-interactivity and zero-knowledge properties.
 
 Concatenate ring points with scaled multiples of $H$:
 $$\overline{P} = \overline{PK} \| \overline{H} = (P_0, \ldots, P_{N-5}) \in \mathbb{J}^{N-4}$$
+
+The $N - 4$ point entries correspond to the $N - 4$ constrained accumulator transitions. The coordinate vectors are padded with 4 trailing zeros to fill the domain:
 $$\overline{p}_x = (P_{x,0}, \ldots, P_{x,N-5}, 0, 0, 0, 0) \in \mathbb{F}^N$$
 $$\overline{p}_y = (P_{y,0}, \ldots, P_{y,N-5}, 0, 0, 0, 0) \in \mathbb{F}^N$$
 

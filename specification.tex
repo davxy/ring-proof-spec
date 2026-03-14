@@ -301,6 +301,10 @@ Preprocessing}\label{public-input-preprocessing}
 
 Concatenate ring points with scaled multiples of \(H\):
 \[\overline{P} = \overline{PK} \| \overline{H} = (P_0, \ldots, P_{N-5}) \in \mathbb{J}^{N-4}\]
+
+The \(N - 4\) point entries correspond to the \(N - 4\) constrained
+accumulator transitions. The coordinate vectors are padded with 4
+trailing zeros to fill the domain:
 \[\overline{p}_x = (P_{x,0}, \ldots, P_{x,N-5}, 0, 0, 0, 0) \in \mathbb{F}^N\]
 \[\overline{p}_y = (P_{y,0}, \ldots, P_{y,N-5}, 0, 0, 0, 0) \in \mathbb{F}^N\]
 
@@ -376,7 +380,7 @@ The resulting accumulator points are finally separated into \(x\) and
 Vector}\label{inner-product-accumulator-vector}
 
 \[
-acc_{ip_0} = 0, \quad acc_{ip_i} = acc_{ip_{i-1}} + b_{i-1}s_{i-1}, \quad i = 1, \ldots, N-4
+acc_{ip_0} = 0, \quad acc_{ip_i} = acc_{ip_{i-1}} + b_{i-1}\sigma_{i-1}, \quad i = 1, \ldots, N-4
 \]
 
 \begin{itemize}
@@ -391,10 +395,11 @@ acc_{ip_0} = 0, \quad acc_{ip_i} = acc_{ip_{i-1}} + b_{i-1}s_{i-1}, \quad i = 1,
 \paragraph{3.1.4. Interpolation and
 Commitments}\label{interpolation-and-commitments}
 
-The resulting vectors are interpolated over \(\mathbb{D}\) with random
-values \(\{r_i\}\) appended as padding for the final entries. This
-padding helps obscure the resulting polynomial, even when committing to
-identical witness values.
+In hiding (zero-knowledge) mode, the resulting vectors are interpolated
+over \(\mathbb{D}\) with random values \(\{r_i\}\) occupying the last 3
+domain positions (\(N-3\), \(N-2\), \(N-1\)). These positions are
+unconstrained and serve to randomize the witness polynomials, preventing
+information leakage through polynomial commitments.
 \[b = \text{Interpolate}(\overline{b} \| (r_1, r_2, r_3))\]
 \[acc_x = \text{Interpolate}(\overline{acc}_x \| (r_4, r_5, r_6))\]
 \[acc_y = \text{Interpolate}(\overline{acc}_y \| (r_7, r_8, r_9))\]
@@ -530,11 +535,11 @@ Using the Fiat-Shamir heuristic, sample the aggregation coefficients:
 Construct the aggregated polynomial:
 \[c(x) = \left(\sum_{i=1}^7 \alpha_i c_i(x)\right) \cdot \prod_{k=1}^3 \left(x - \omega^{N-k}\right)\]
 
-The factor \(\prod_{k=1}^3 \left(x - \omega^{N-k}\right)\) ensures that
-\(c(x)\) vanishes at the last three points of the domain, thereby
-enforcing the constraints across the entire evaluation domain, including
-the last three points where random evaluation values were used during
-the witness polynomials interpolation phase.
+In hiding mode, the factor
+\(\prod_{k=1}^3 \left(x - \omega^{N-k}\right)\) zeros out the aggregated
+constraints at the 3 randomized domain positions, ensuring the quotient
+polynomial \(q(x)\) is well-formed despite these unconstrained rows.
+This factor is not present in non-hiding mode.
 
 \paragraph{3.3.2. Quotient Polynomial}\label{quotient-polynomial}
 
@@ -558,7 +563,7 @@ Evaluation}\label{relevant-polynomials-evaluation}
 
 Evaluate the relevant polynomials at the sampled evaluation point
 \(\zeta\): \[p_{x,\zeta} = p_x(\zeta)\] \[p_{y,\zeta} = p_y(\zeta)\]
-\[\sigma_\zeta = s(\zeta)\] \[b_\zeta = b(\zeta)\]
+\[\sigma_\zeta = \sigma(\zeta)\] \[b_\zeta = b(\zeta)\]
 \[acc_{ip,\zeta} = acc_{ip}(\zeta)\] \[acc_{x,\zeta} = acc_x(\zeta)\]
 \[acc_{y,\zeta} = acc_y(\zeta)\]
 
