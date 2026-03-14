@@ -1,15 +1,17 @@
 # Ring Proof Specification
 
+Author: Davide Galassi
+
 26-08-2024-draft-7
 
 ## *Abstract*
 
-This document describes a cryptographic scheme based on SNARKs (Succinct
-Non-Interactive Arguments of Knowledge) that enables a prover to demonstrate
+This document specifies the SNARK component originally designed as part of
+the Ring VRF construction [1]. The scheme enables a prover to demonstrate
 knowledge of a secret scalar $t$ and a secret index $k$ within a group of
 public keys, where each public key is a point on an elliptic curve. The scheme
 ensures that, when combined with a public elliptic curve point $H$, the relation
-$R = PK_k + t·H$ is satisfied. It leverages elliptic curve operations,
+$R = PK_k + t \cdot H$ is satisfied. It leverages elliptic curve operations,
 a polynomial commitment scheme, and the Fiat-Shamir heuristic to achieve
 non-interactivity and zero-knowledge properties.
 
@@ -47,7 +49,7 @@ non-interactivity and zero-knowledge properties.
  
 #### Elliptic Curves
 
-- $J = J / \mathbb{F}$ -- Elliptic curve $J$ defined over the field $\mathbb{F}$.
+- $J = J / \mathbb{F}$ -- Twisted Edwards curve $ax^2 + y^2 = 1 + dx^2y^2$ defined over $\mathbb{F}$, with curve coefficient $a$.
 - $\tilde{\mathbb{J}} = J(\mathbb{F})$ -- Group of $\mathbb{F}$-rational points on $J$.
 - $\mathbb{J} \subset \tilde{\mathbb{J}}$ -- Prime order subgroup of $\tilde{\mathbb{J}}$.
 
@@ -81,10 +83,14 @@ non-interactivity and zero-knowledge properties.
 - $\text{PCS.Verify}: (\mathbb{G}, \mathbb{F}, \mathbb{F}, \Pi) \to \mathbb{B};\ \ (C_f,x,y ,\pi) \mapsto (0|1)$
   - Verifies whether $y = f(x)$ given the commitment $C_f$ and proof $\pi$.
 
+The reference implementation uses fflonk, a KZG variant that batches multiple polynomial openings into a single group element, reducing proof size and verification cost.
+
 #### Fiat-Shamir Transform
 
 - $\text{FS}: \mathbb{S} \to \mathbb{F};\ \textbf{s} \mapsto x$
   - Maps a serializable object $\textbf{s} \in \mathbb{S}$ to $\mathbb{F}$, typically via some cryptographically secure hash function.
+
+The reference implementation uses `ark-transcript`, a Merlin-like transcript based on SHAKE128 that appends the length of the serialized object (rather than prepending it as Merlin does).
 
 ---
 
@@ -94,8 +100,8 @@ non-interactivity and zero-knowledge properties.
 
 - $\square \in \mathbb{J}$ -- Padding element, a point on $\mathbb{J}$ with unknown discrete logarithm.
 - $H \in \mathbb{J}$ -- Pedersen blinding base point.
-- $\overline{H} = (H, 2H, 4H, \ldots, 2^{N_{J-1}}H) \in \mathbb{J}^{N_J}$ -- Vector of scaled multiples of $H$.
-- $S \in \tilde{\mathbb{J}} \setminus \mathbb{J}$ -- Point in $\tilde{\mathbb{J}}$ used as seed for accumulation, ensuring the result is never the identity.
+- $\overline{H} = (H, 2H, 4H, \ldots, 2^{N_J-1}H) \in \mathbb{J}^{N_J}$ -- Vector of scaled multiples of $H$.
+- $S \in \mathbb{J}$ -- Seed point for accumulation, with unknown discrete logarithm. Choosing $S \in \tilde{\mathbb{J}} \setminus \mathbb{J}$ is strongly recommended as it guarantees the accumulator never reaches the identity element.
 
 ### 2.2. Public Data
   
@@ -112,24 +118,26 @@ non-interactivity and zero-knowledge properties.
 
 Concatenate ring points with scaled multiples of $H$:
 $$\overline{P} = \overline{PK} \| \overline{H} = (P_0, \ldots, P_{N-5}) \in \mathbb{J}^{N-4}$$
+
+The $N - 4$ point entries correspond to the $N - 4$ constrained accumulator transitions. The coordinate vectors are padded with 4 trailing zeros to fill the domain:
 $$\overline{p}_x = (P_{x,0}, \ldots, P_{x,N-5}, 0, 0, 0, 0) \in \mathbb{F}^N$$
 $$\overline{p}_y = (P_{y,0}, \ldots, P_{y,N-5}, 0, 0, 0, 0) \in \mathbb{F}^N$$
 
 Ring items selector:
-$$\overline{s} = 1^{\|N_K}\ \|\ 0^{\|N-N_K} \in \mathbb{F}^N$$
+$$\overline{\sigma} = 1^{\|N_K}\ \|\ 0^{\|N-N_K} \in \mathbb{F}^N$$
 
-#### 2.4.1 Interpolation
+#### 2.4.2. Interpolation
 
 The resulting vectors are interpolated over $\mathbb{D}$:
 $$p_x = \text{Interpolate}(\overline{p}_x)$$
 $$p_y = \text{Interpolate}(\overline{p}_y)$$
-$$s = \text{Interpolate}(\overline{s})$$
+$$\sigma = \text{Interpolate}(\overline{\sigma})$$
 
-#### 2.4.2. Commit to the constructed vectors
+#### 2.4.3. Commit to the constructed vectors
 
 $$C_{p_x} = \text{PCS.Commit}(p_x)$$
 $$C_{p_y} = \text{PCS.Commit}(p_y)$$
-$$C_s = \text{PCS.Commit}(s)$$
+$$C_\sigma = \text{PCS.Commit}(\sigma)$$
 
 ### 2.5. Relation to Prove
 
@@ -169,7 +177,7 @@ $$
 #### 3.1.3. Inner Product Accumulator Vector
 
 $$
-acc_{ip_0} = 0, \quad acc_{ip_i} = acc_{ip_{i-1}} + b_{i-1}s_{i-1}, \quad i = 1, \ldots, N-4
+acc_{ip_0} = 0, \quad acc_{ip_i} = acc_{ip_{i-1}} + b_{i-1}\sigma_{i-1}, \quad i = 1, \ldots, N-4
 $$
 
 - The accumulator is initialized with $0$.
@@ -177,7 +185,7 @@ $$
 
 #### 3.1.4. Interpolation and Commitments
 
-The resulting vectors are interpolated over $\mathbb{D}$ with random values $\{r_i\}$ appended as padding for the final entries. This padding helps obscure the resulting polynomial, even when committing to identical witness values.
+In hiding (zero-knowledge) mode, the resulting vectors are interpolated over $\mathbb{D}$ with random values $\{r_i\}$ occupying the last 3 domain positions ($N-3$, $N-2$, $N-1$). These positions are unconstrained and serve to randomize the witness polynomials, preventing information leakage through polynomial commitments.
 $$b = \text{Interpolate}(\overline{b} \| (r_1, r_2, r_3))$$
 $$acc_x = \text{Interpolate}(\overline{acc}_x \| (r_4, r_5, r_6))$$
 $$acc_y = \text{Interpolate}(\overline{acc}_y \| (r_7, r_8, r_9))$$
@@ -198,24 +206,24 @@ Note. When evaluating a polynomial $f$ at $x = \omega^k \in \mathbb{D}$ for some
 #### 3.2.1. Inner Product
 
 $$
-c_1(x) = \bigl(acc_{ip}(\omega x) - acc_{ip}(x) - b(x)s(x)\bigr)(x - \omega^{N-4})
+c_1(x) = \bigl(acc_{ip}(\omega x) - acc_{ip}(x) - b(x)\sigma(x)\bigr)(x - \omega^{N-4})
 $$
 
-This constraint ensures the inner product accumulator $acc_{ip}(x)$ is correctly updated, satisfying $acc_{ip}(\omega x) = acc_{ip}(x) + b(x)s(x)$.
+This constraint ensures the inner product accumulator $acc_{ip}(x)$ is correctly updated, satisfying $acc_{ip}(\omega x) = acc_{ip}(x) + b(x)\sigma(x)$.
 
 The factor $(x - \omega^{N-4})$ ensures the constraint holds at all points including $x = \omega^{N-4}$, where $c_1(x)$ automatically vanishes.
 
 #### 3.2.2. Conditional Addition
 
 $$\begin{aligned}
-c_2(x) = & \biggl( b(x) \Bigl( \bigl(acc_x(x) - p_x(x)\bigr)^2 \bigl(acc_x(x) + p_x(x) + acc_x(\omega x)\bigr) \\
-         & \quad - \bigl(p_y(x) - acc_y(x)\bigr)^2 \Bigr) \\
+c_2(x) = & \biggl( b(x) \Bigl( acc_x(\omega x)\bigl(acc_y(x) \cdot p_y(x) + a \cdot acc_x(x) \cdot p_x(x)\bigr) \\
+         & \quad - acc_x(x) \cdot acc_y(x) - p_x(x) \cdot p_y(x) \Bigr) \\
          & + \bigl(1 - b(x)\bigr) \bigl(acc_x(\omega x) - acc_x(x)\bigr) \biggr) \times (x - \omega^{N-4}) \\
 \end{aligned}$$
 $$\begin{aligned}
-c_3(x) = & \biggl( b(x) \Bigl( \bigl(acc_x(x) - p_x(x)\bigr)\bigl(acc_y(\omega x) + acc_y(x)\bigr) \\
-         & \quad - \bigl(p_y(x) - acc_y(x)\bigr)\bigl(acc_x(\omega x) - acc_x(x)\bigr) \Bigr) \\
-         & + \bigl(1 - b(x)\bigr) \bigl(acc_x(\omega x) - acc_x(x)\bigr) \biggr) \times (x - \omega^{N-4})
+c_3(x) = & \biggl( b(x) \Bigl( acc_y(\omega x)\bigl(acc_x(x) \cdot p_y(x) - p_x(x) \cdot acc_y(x)\bigr) \\
+         & \quad - acc_x(x) \cdot acc_y(x) + p_x(x) \cdot p_y(x) \Bigr) \\
+         & + \bigl(1 - b(x)\bigr) \bigl(acc_y(\omega x) - acc_y(x)\bigr) \biggr) \times (x - \omega^{N-4})
 \end{aligned}$$
 
 These constraints enforce correct elliptic curve addition for the $x$ and $y$ components, respectively, controlled by the Boolean variable $b(x)$:
@@ -227,23 +235,23 @@ The factor $(x - \omega^{N-4})$ nullifies the constraint at $x = \omega^{N-4}$, 
 
 #### 3.2.3. Booleanity
 
-$$c_3(x) = b(x)\bigl(1 - b(x)\bigr)$$
+$$c_4(x) = b(x)\bigl(1 - b(x)\bigr)$$
 
 Ensures that the polynomial $b(x)$ acts as a Boolean variable, taking only values 0 or 1.
 
-- **If** $b(x) = 0$ or $b(x) = 1$, then $c_3(x) = 0$.
-- **If** $b(x)$ takes any value other than 0 or 1, $c_3(x)$ will be non-zero, violating the constraint.
+- **If** $b(x) = 0$ or $b(x) = 1$, then $c_4(x) = 0$.
+- **If** $b(x)$ takes any value other than 0 or 1, $c_4(x)$ will be non-zero, violating the constraint.
 
 #### 3.2.4. Conditional Addition Boundary
 
-Given the seed point $S = (s_x, s_y)$ and the expected result delta from the seed point $R = (r_x, r_y)$, the constraints are:
-$$c_5(x) = \bigl(acc_x(x) - s_x\bigr)L_0(x) + \bigl(acc_x(x) - r_x - s_x\bigr)L_{N-4}(x)$$
-$$c_6(x) = \bigl(acc_y(x) - s_y\bigr)L_0(x) + \bigl(acc_y(x) - r_y - s_y\bigr)L_{N-4}(x)$$
+Given the seed point $S = (s_x, s_y)$ and the expected result $R = (r_x, r_y)$, the verifier computes $E = S + R$ (EC point addition) with $E = (e_x, e_y)$. The constraints are:
+$$c_5(x) = \bigl(acc_x(x) - s_x\bigr)L_0(x) + \bigl(acc_x(x) - e_x\bigr)L_{N-4}(x)$$
+$$c_6(x) = \bigl(acc_y(x) - s_y\bigr)L_0(x) + \bigl(acc_y(x) - e_y\bigr)L_{N-4}(x)$$
 
 These constraints ensure the accumulator components take specific values at the conditional addition boundaries:
 
 - **At** $x = \omega^0$: $L_0(x) = 1$ and $L_{N-4}(x) = 0$, enforcing $acc_x(\omega^0) = s_x$ and $acc_y(\omega^0) = s_y$.
-- **At** $x = \omega^{N-4}$: $L_0(x) = 0$ and $L_{N-4}(x) = 1$, enforcing $acc_x(\omega^{N-4}) = r_x + s_x$ and $acc_y(\omega^{N-4}) = r_y + s_y$.
+- **At** $x = \omega^{N-4}$: $L_0(x) = 0$ and $L_{N-4}(x) = 1$, enforcing $acc_x(\omega^{N-4}) = e_x$ and $acc_y(\omega^{N-4}) = e_y$.
 
 #### 3.2.5. Inner Product Boundary
 
@@ -266,7 +274,7 @@ $$\{\alpha_i\}_{i=1}^7 \leftarrow \text{FS}(C_b, C_{acc_{ip}}, C_{acc_x}, C_{acc
 Construct the aggregated polynomial:
 $$c(x) = \left(\sum_{i=1}^7 \alpha_i c_i(x)\right) \cdot \prod_{k=1}^3 \left(x - \omega^{N-k}\right)$$
 
-The factor $\prod_{k=1}^3 \left(x - \omega^{N-k}\right)$ ensures that $c(x)$ vanishes at the last three points of the domain, thereby enforcing the constraints across the entire evaluation domain, including the last three points where random evaluation values were used during the witness polynomials interpolation phase.
+In hiding mode, the factor $\prod_{k=1}^3 \left(x - \omega^{N-k}\right)$ zeros out the aggregated constraints at the 3 randomized domain positions, ensuring the quotient polynomial $q(x)$ is well-formed despite these unconstrained rows. This factor is not present in non-hiding mode.
 
 #### 3.3.2. Quotient Polynomial
 
@@ -288,7 +296,7 @@ $$\zeta \leftarrow \text{FS}(C_q)$$
 Evaluate the relevant polynomials at the sampled evaluation point $\zeta$:
 $$p_{x,\zeta} = p_x(\zeta)$$
 $$p_{y,\zeta} = p_y(\zeta)$$
-$$s_\zeta = s(\zeta)$$
+$$\sigma_\zeta = \sigma(\zeta)$$
 $$b_\zeta = b(\zeta)$$
 $$acc_{ip,\zeta} = acc_{ip}(\zeta)$$
 $$acc_{x,\zeta} = acc_x(\zeta)$$
@@ -304,8 +312,8 @@ Accumulator inner product ($c_1$) contribution:
 $$l_1(x)=(\zeta - \omega^{N-4})acc_{ip}(x)$$
 
 Conditional addition accumulators ($c_{2,3}$) contributions:
-$$l_2(x)=(\zeta-\omega^{N-4})\bigl(b_\zeta(acc_{x,\zeta}-p_{x,\zeta})^2acc_x(x)+(1-b_\zeta)acc_y(x)\bigr)$$
-$$l_3(x)=(\zeta-\omega^{N-4})\Bigl(\bigl(b_\zeta(acc_{y,\zeta}-p_{y,\zeta})+1-b_\zeta\bigr)acc_x(x)+b_\zeta(acc_{x,\zeta}-p_{x,\zeta})acc_y(x)\Bigr)$$
+$$l_2(x)=(\zeta-\omega^{N-4})\bigl(b_\zeta(acc_{y,\zeta} \cdot p_{y,\zeta}+a \cdot acc_{x,\zeta} \cdot p_{x,\zeta})+1-b_\zeta\bigr)acc_x(x)$$
+$$l_3(x)=(\zeta-\omega^{N-4})\bigl(b_\zeta(acc_{x,\zeta} \cdot p_{y,\zeta}-p_{x,\zeta} \cdot acc_{y,\zeta})+1-b_\zeta\bigr)acc_y(x)$$
 
 Linearized constraints are aggregated using $\{\alpha_i\}$ coefficients and evaluated at $\zeta \omega$:
 $$l(x)=\sum_{i=1}^3\alpha_i l_i(x)$$
@@ -314,10 +322,10 @@ $$l_{\zeta\omega}=l(\zeta\omega)$$
 #### 3.3.6. Sample Aggregation Coefficients
 
 Sample the aggregation coefficients $\{\nu_i\}$ using the Fiat-Shamir heuristic and compute the aggregate polynomial $agg$:
-$$\{\nu_i\}_{i=1}^8 \leftarrow \text{FS}(p_{x,\zeta}, p_{y,\zeta}, s_\zeta, b_\zeta, acc_{ip,\zeta}, acc_{x,\zeta}, acc_{y,\zeta}, l_{\zeta\omega})$$
+$$\{\nu_i\}_{i=1}^8 \leftarrow \text{FS}(p_{x,\zeta}, p_{y,\zeta}, \sigma_\zeta, b_\zeta, acc_{ip,\zeta}, acc_{x,\zeta}, acc_{y,\zeta}, l_{\zeta\omega})$$
 
 Construct the aggregate polynomial:
-$$agg(x)=\nu_1p_x(x)+\nu_2p_y(x)+\nu_3s(x)+\nu_4b(x)+\nu_5acc_{ip}(x)+\nu_6acc_x(x)+\nu_7acc_y(x)+\nu_8q(x)$$
+$$agg(x)=\nu_1p_x(x)+\nu_2p_y(x)+\nu_3\sigma(x)+\nu_4b(x)+\nu_5acc_{ip}(x)+\nu_6acc_x(x)+\nu_7acc_y(x)+\nu_8q(x)$$
 
 #### 3.3.7. Proof Construction
 
@@ -326,7 +334,7 @@ $$\Pi_\zeta = \text{PCS.Open}(agg,\zeta)$$
 $$\Pi_{\zeta\omega} = \text{PCS.Open}(l,\zeta\omega)$$
 
 Construct the proof as follows:
-$$\Pi=(C_b,C_{acc_{ip}},C_{acc_x},C_{acc_y},p_{x,\zeta},p_{y,\zeta},s_\zeta,b_\zeta,acc_{ip,\zeta},acc_{x,\zeta},acc_{y,\zeta},C_q,l_{\zeta\omega},\Pi_\zeta,\Pi_{\zeta\omega})$$
+$$\Pi=(C_b,C_{acc_{ip}},C_{acc_x},C_{acc_y},p_{x,\zeta},p_{y,\zeta},\sigma_\zeta,b_\zeta,acc_{ip,\zeta},acc_{x,\zeta},acc_{y,\zeta},C_q,l_{\zeta\omega},\Pi_\zeta,\Pi_{\zeta\omega})$$
 
 ---
 
@@ -335,14 +343,14 @@ $$\Pi=(C_b,C_{acc_{ip}},C_{acc_x},C_{acc_y},p_{x,\zeta},p_{y,\zeta},s_\zeta,b_\z
 ### 4.1. Inputs
 
 Commitments to the ring public keys and the selector, prepared during the pre-processing phase:
-$$(C_{p_x}, C_{p_y}, C_s)$$
+$$(C_{p_x}, C_{p_y}, C_\sigma)$$
 
-The claimed accumulation result, allegedly $PK_k + tH$ for some $k$ and $t$ known to the prover. This is the primary element to be assessed:
+The claimed result point, allegedly $R = PK_k + tH$ for some $k$ and $t$ known to the prover:
 $$R = (r_x, r_y)$$
 
 Proof which contains all the necessary commitments, evaluations, and openings needed for the verifier to perform the validation checks:
 $$
-\Pi = (C_b, C_{acc_{ip}}, C_{acc_x}, C_{acc_y}, p_{x,\zeta}, p_{y,\zeta}, s_\zeta, b_\zeta, ip_{\zeta}, ac_{x,\zeta}, ac_{y,\zeta}, C_q, l_{\zeta\omega}, \Pi_\zeta, \Pi_{\zeta\omega})
+\Pi = (C_b, C_{acc_{ip}}, C_{acc_x}, C_{acc_y}, p_{x,\zeta}, p_{y,\zeta}, \sigma_\zeta, b_\zeta, acc_{ip,\zeta}, acc_{x,\zeta}, acc_{y,\zeta}, C_q, l_{\zeta\omega}, \Pi_\zeta, \Pi_{\zeta\omega})
 $$
 
 ### 4.2. Verification
@@ -350,19 +358,19 @@ $$
 #### 4.2.1. Fiat-Shamir Challenges
 
 Recovery of aggregation coefficients and evaluation point:
-$$\{\alpha_i\}_{i=1}^7 \leftarrow \text{FS}(C_b, C_{ip}, C_{acc_x}, C_{acc_y})$$
+$$\{\alpha_i\}_{i=1}^7 \leftarrow \text{FS}(C_b, C_{acc_{ip}}, C_{acc_x}, C_{acc_y})$$
 $$\zeta \leftarrow \text{FS}(C_q)$$
-$$\{\nu_i\}_{i=1}^8 \leftarrow \text{FS}(p_{x,\zeta}, p_{y,\zeta}, s_\zeta, b_\zeta, acc_{ip,\zeta}, acc_{x,\zeta}, acc_{y,\zeta}, l_{\zeta\omega})$$
+$$\{\nu_i\}_{i=1}^8 \leftarrow \text{FS}(p_{x,\zeta}, p_{y,\zeta}, \sigma_\zeta, b_\zeta, acc_{ip,\zeta}, acc_{x,\zeta}, acc_{y,\zeta}, l_{\zeta\omega})$$
 
 #### 4.2.2. Contributions to the Constraints Evaluated at $\zeta$
 
 The following expressions represent the contributions to the constraint polynomials evaluated at the point $\zeta$:
-$$\tilde{c}_{1,\zeta}=-(acc_{ip,\zeta}+b_\zeta s_\zeta)(\zeta-\omega^{N-4})$$
-$$\tilde{c}_{2,\zeta}=\left\{b_\zeta\left[(acc_{x,\zeta}-p_{x,\zeta})^2(acc_{x,\zeta}+p_{x,\zeta})-(p_{y,\zeta}-acc_{y,\zeta})^2\right]-(1-b_\zeta)acc_{y,\zeta}\right\}(\zeta-\omega^{N-4})$$
-$$\tilde{c}_{3,\zeta}=\left\{b_\zeta\left[(acc_{x,\zeta}-p_{x,\zeta})acc_{y,\zeta}+(p_{y,\zeta}-acc_{y,\zeta})acc_{x,\zeta}\right]-(1-b_\zeta)acc_{x,\zeta}\right\}(\zeta-\omega^{N-4})$$
+$$\tilde{c}_{1,\zeta}=-(acc_{ip,\zeta}+b_\zeta \sigma_\zeta)(\zeta-\omega^{N-4})$$
+$$\tilde{c}_{2,\zeta}=\left\{-b_\zeta(acc_{x,\zeta} \cdot acc_{y,\zeta}+p_{x,\zeta} \cdot p_{y,\zeta})-(1-b_\zeta)acc_{x,\zeta}\right\}(\zeta-\omega^{N-4})$$
+$$\tilde{c}_{3,\zeta}=\left\{-b_\zeta(acc_{x,\zeta} \cdot acc_{y,\zeta}-p_{x,\zeta} \cdot p_{y,\zeta})-(1-b_\zeta)acc_{y,\zeta}\right\}(\zeta-\omega^{N-4})$$
 $$c_4=b_{\zeta}(1-b_{\zeta})$$
-$$c_5=(acc_{x,\zeta}-s_x)L_0(\zeta)+(acc_{x,\zeta}-r_x-s_x)L_{N-4}(\zeta)$$
-$$c_6=(acc_{y,\zeta}-s_y)L_0(\zeta)+(acc_{y,\zeta}-r_y-s_y)L_{N-4}(\zeta)$$
+$$c_5=(acc_{x,\zeta}-s_x)L_0(\zeta)+(acc_{x,\zeta}-e_x)L_{N-4}(\zeta)$$
+$$c_6=(acc_{y,\zeta}-s_y)L_0(\zeta)+(acc_{y,\zeta}-e_y)L_{N-4}(\zeta)$$
 $$c_7=acc_{ip,\zeta}L_0(\zeta)+(acc_{ip,\zeta}-1)L_{N-4}(\zeta)$$
 
 **Note:** The tilde ( $\tilde{}$ ) above the first three polynomials indicates that these are only partial contributions, representing the components evaluated at $\zeta$. The components evaluated at $\zeta \omega$ are added later by the linearization aggregated polynomial found within the proof ($l_{\zeta\omega}$).
@@ -373,10 +381,10 @@ Aggregate the contributions along with the linearization polynomial evaluated at
 $$q_{\zeta}=\frac{(\sum_{i=1}^7\alpha_ic_i+l_{\zeta\omega})\prod_{k=1}^3(\zeta-\omega^{N-k})}{\zeta^N-1}$$
    
 Compute the aggregate commitment $C_{agg}$ using the aggregation coefficients $\nu_i$:
-$$C_{agg} = \nu_1 C_{p_x} + \nu_2 C_{p_y} + \nu_3 C_s + \nu_4 C_b + \nu_5 C_{acc_{ip}} + \nu_6 C_{acc_x} + \nu_7 C_{acc_y} + \nu_8 C_q$$
+$$C_{agg} = \nu_1 C_{p_x} + \nu_2 C_{p_y} + \nu_3 C_\sigma + \nu_4 C_b + \nu_5 C_{acc_{ip}} + \nu_6 C_{acc_x} + \nu_7 C_{acc_y} + \nu_8 C_q$$
   
 Compute the aggregate evaluation $agg_\zeta$ using the same coefficients:
-$$agg_\zeta = \nu_1 p_{x,\zeta} + \nu_2 p_{y,\zeta} + \nu_3 s_\zeta + \nu_4 b_\zeta + \nu_5 acc_{ip,\zeta} + \nu_6 acc_{x,\zeta} + \nu_7 acc_{y,\zeta} + \nu_8 q_\zeta$$
+$$agg_\zeta = \nu_1 p_{x,\zeta} + \nu_2 p_{y,\zeta} + \nu_3 \sigma_\zeta + \nu_4 b_\zeta + \nu_5 acc_{ip,\zeta} + \nu_6 acc_{x,\zeta} + \nu_7 acc_{y,\zeta} + \nu_8 q_\zeta$$
 
 Verify the aggregate polynomial opening at $\zeta$ using $\Pi_\zeta$:
 $$\text{PCS.Verify}(C_{agg}, \zeta, agg_\zeta, \Pi_\zeta)$$
@@ -385,8 +393,8 @@ $$\text{PCS.Verify}(C_{agg}, \zeta, agg_\zeta, \Pi_\zeta)$$
 
 Compute the individual linearization polynomial commitments:
 $$C_{l_1}=(\zeta-\omega^{N-4})C_{acc_{ip}}$$
-$$C_{l_2}=(\zeta-\omega^{N-4})\left(b_\zeta(acc_{x,\zeta}-p_{x,\zeta})^2C_{acc_x}+(1-b_\zeta)C_{acc_y}\right)$$
-$$C_{l_3}=(\zeta-\omega^{N-4})\left(\left(b_\zeta(acc_{y,\zeta}-p_{y,\zeta})+1-b_\zeta\right)C_{acc_x}+b_\zeta(acc_{x,\zeta}-p_{x,\zeta}) C_{acc_y}\right)$$
+$$C_{l_2}=(\zeta-\omega^{N-4})\bigl(b_\zeta(acc_{y,\zeta} \cdot p_{y,\zeta}+a \cdot acc_{x,\zeta} \cdot p_{x,\zeta})+1-b_\zeta\bigr)C_{acc_x}$$
+$$C_{l_3}=(\zeta-\omega^{N-4})\bigl(b_\zeta(acc_{x,\zeta} \cdot p_{y,\zeta}-p_{x,\zeta} \cdot acc_{y,\zeta})+1-b_\zeta\bigr)C_{acc_y}$$
 
 Aggregate the linearization polynomial commitments using $\{\alpha_i\}$ coefficients.
 $$C_l=\sum_{i=1}^3\alpha_iC_{l_i}$$
@@ -402,6 +410,7 @@ and reference implementation, as cited in the references.
 
 ## 6. References
 
-- These notes on hackmd: `https://hackmd.io/@davxy/r1SVPqQc0`.
-- Sergey Vasilyev original writeup: `https://hackmd.io/ulW5nFFpTwClHsD0kusJAA`
-- W3F reference implementation: `https://github.com/w3f/ring-proof`
+1. J. Burdges, O. Ciobotaru, H. Kilinc Alper, A. Stewart, S. Vasilyev. "Ring Verifiable Random Functions and Zero-Knowledge Continuations", 2023. `https://eprint.iacr.org/2023/002`
+3. Reference implementation: `https://github.com/paritytech/ring-proof`
+4. fflonk (KZG variant): `https://crates.io/crates/fflonk`
+5. ark-transcript (Fiat-Shamir): `https://crates.io/crates/ark-transcript`
