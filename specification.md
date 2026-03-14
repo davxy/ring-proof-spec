@@ -210,7 +210,7 @@ The factor $(x - \omega^{N-4})$ ensures the constraint holds at all points inclu
 $$\begin{aligned}
 c_2(x) = & \biggl( b(x) \Bigl( \bigl(acc_x(x) - p_x(x)\bigr)^2 \bigl(acc_x(x) + p_x(x) + acc_x(\omega x)\bigr) \\
          & \quad - \bigl(p_y(x) - acc_y(x)\bigr)^2 \Bigr) \\
-         & + \bigl(1 - b(x)\bigr) \bigl(acc_x(\omega x) - acc_x(x)\bigr) \biggr) \times (x - \omega^{N-4}) \\
+         & + \bigl(1 - b(x)\bigr) \bigl(acc_y(\omega x) - acc_y(x)\bigr) \biggr) \times (x - \omega^{N-4}) \\
 \end{aligned}$$
 $$\begin{aligned}
 c_3(x) = & \biggl( b(x) \Bigl( \bigl(acc_x(x) - p_x(x)\bigr)\bigl(acc_y(\omega x) + acc_y(x)\bigr) \\
@@ -227,23 +227,23 @@ The factor $(x - \omega^{N-4})$ nullifies the constraint at $x = \omega^{N-4}$, 
 
 #### 3.2.3. Booleanity
 
-$$c_3(x) = b(x)\bigl(1 - b(x)\bigr)$$
+$$c_4(x) = b(x)\bigl(1 - b(x)\bigr)$$
 
 Ensures that the polynomial $b(x)$ acts as a Boolean variable, taking only values 0 or 1.
 
-- **If** $b(x) = 0$ or $b(x) = 1$, then $c_3(x) = 0$.
-- **If** $b(x)$ takes any value other than 0 or 1, $c_3(x)$ will be non-zero, violating the constraint.
+- **If** $b(x) = 0$ or $b(x) = 1$, then $c_4(x) = 0$.
+- **If** $b(x)$ takes any value other than 0 or 1, $c_4(x)$ will be non-zero, violating the constraint.
 
 #### 3.2.4. Conditional Addition Boundary
 
-Given the seed point $S = (s_x, s_y)$ and the expected result delta from the seed point $R = (r_x, r_y)$, the constraints are:
-$$c_5(x) = \bigl(acc_x(x) - s_x\bigr)L_0(x) + \bigl(acc_x(x) - r_x - s_x\bigr)L_{N-4}(x)$$
-$$c_6(x) = \bigl(acc_y(x) - s_y\bigr)L_0(x) + \bigl(acc_y(x) - r_y - s_y\bigr)L_{N-4}(x)$$
+Given the seed point $S = (s_x, s_y)$ and the expected result $R = (r_x, r_y)$, the verifier computes $E = S + R$ (EC point addition) with $E = (e_x, e_y)$. The constraints are:
+$$c_5(x) = \bigl(acc_x(x) - s_x\bigr)L_0(x) + \bigl(acc_x(x) - e_x\bigr)L_{N-4}(x)$$
+$$c_6(x) = \bigl(acc_y(x) - s_y\bigr)L_0(x) + \bigl(acc_y(x) - e_y\bigr)L_{N-4}(x)$$
 
 These constraints ensure the accumulator components take specific values at the conditional addition boundaries:
 
 - **At** $x = \omega^0$: $L_0(x) = 1$ and $L_{N-4}(x) = 0$, enforcing $acc_x(\omega^0) = s_x$ and $acc_y(\omega^0) = s_y$.
-- **At** $x = \omega^{N-4}$: $L_0(x) = 0$ and $L_{N-4}(x) = 1$, enforcing $acc_x(\omega^{N-4}) = r_x + s_x$ and $acc_y(\omega^{N-4}) = r_y + s_y$.
+- **At** $x = \omega^{N-4}$: $L_0(x) = 0$ and $L_{N-4}(x) = 1$, enforcing $acc_x(\omega^{N-4}) = e_x$ and $acc_y(\omega^{N-4}) = e_y$.
 
 #### 3.2.5. Inner Product Boundary
 
@@ -337,7 +337,7 @@ $$\Pi=(C_b,C_{acc_{ip}},C_{acc_x},C_{acc_y},p_{x,\zeta},p_{y,\zeta},s_\zeta,b_\z
 Commitments to the ring public keys and the selector, prepared during the pre-processing phase:
 $$(C_{p_x}, C_{p_y}, C_s)$$
 
-The claimed accumulation result, allegedly $PK_k + tH$ for some $k$ and $t$ known to the prover. This is the primary element to be assessed:
+The claimed result point, allegedly $R = PK_k + tH$ for some $k$ and $t$ known to the prover:
 $$R = (r_x, r_y)$$
 
 Proof which contains all the necessary commitments, evaluations, and openings needed for the verifier to perform the validation checks:
@@ -361,8 +361,8 @@ $$\tilde{c}_{1,\zeta}=-(acc_{ip,\zeta}+b_\zeta s_\zeta)(\zeta-\omega^{N-4})$$
 $$\tilde{c}_{2,\zeta}=\left\{b_\zeta\left[(acc_{x,\zeta}-p_{x,\zeta})^2(acc_{x,\zeta}+p_{x,\zeta})-(p_{y,\zeta}-acc_{y,\zeta})^2\right]-(1-b_\zeta)acc_{y,\zeta}\right\}(\zeta-\omega^{N-4})$$
 $$\tilde{c}_{3,\zeta}=\left\{b_\zeta\left[(acc_{x,\zeta}-p_{x,\zeta})acc_{y,\zeta}+(p_{y,\zeta}-acc_{y,\zeta})acc_{x,\zeta}\right]-(1-b_\zeta)acc_{x,\zeta}\right\}(\zeta-\omega^{N-4})$$
 $$c_4=b_{\zeta}(1-b_{\zeta})$$
-$$c_5=(acc_{x,\zeta}-s_x)L_0(\zeta)+(acc_{x,\zeta}-r_x-s_x)L_{N-4}(\zeta)$$
-$$c_6=(acc_{y,\zeta}-s_y)L_0(\zeta)+(acc_{y,\zeta}-r_y-s_y)L_{N-4}(\zeta)$$
+$$c_5=(acc_{x,\zeta}-s_x)L_0(\zeta)+(acc_{x,\zeta}-e_x)L_{N-4}(\zeta)$$
+$$c_6=(acc_{y,\zeta}-s_y)L_0(\zeta)+(acc_{y,\zeta}-e_y)L_{N-4}(\zeta)$$
 $$c_7=acc_{ip,\zeta}L_0(\zeta)+(acc_{ip,\zeta}-1)L_{N-4}(\zeta)$$
 
 **Note:** The tilde ( $\tilde{}$ ) above the first three polynomials indicates that these are only partial contributions, representing the components evaluated at $\zeta$. The components evaluated at $\zeta \omega$ are added later by the linearization aggregated polynomial found within the proof ($l_{\zeta\omega}$).

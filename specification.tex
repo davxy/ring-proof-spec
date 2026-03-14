@@ -5,16 +5,19 @@
 \documentclass[
 ]{article}
 \usepackage{amsmath,amssymb}
-\usepackage{lmodern}
 \usepackage{iftex}
 \ifPDFTeX
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
   \usepackage{textcomp} % provide euro and other symbols
 \else % if luatex or xetex
-  \usepackage{unicode-math}
+  \usepackage{unicode-math} % this also loads fontspec
   \defaultfontfeatures{Scale=MatchLowercase}
   \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
 \fi
 % Use upquote if available, for straight quotes in verbatim environments
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
@@ -33,12 +36,6 @@
   \KOMAoptions{parskip=half}}
 \makeatother
 \usepackage{xcolor}
-\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
-\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
-\hypersetup{
-  hidelinks,
-  pdfcreator={LaTeX via pandoc}}
-\urlstyle{same} % disable monospaced font for URLs
 \setlength{\emergencystretch}{3em} % prevent overfull lines
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
@@ -46,19 +43,23 @@
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
 
 \author{}
 \date{}
 
 \begin{document}
 
-\hypertarget{ring-proof-specification}{%
-\section{Ring Proof Specification}\label{ring-proof-specification}}
+\section{Ring Proof Specification}\label{ring-proof-specification}
 
 26-08-2024-draft-7
 
-\hypertarget{abstract}{%
-\subsection{\texorpdfstring{\emph{Abstract}}{Abstract}}\label{abstract}}
+\subsection{\texorpdfstring{\emph{Abstract}}{Abstract}}\label{abstract}
 
 This document describes a cryptographic scheme based on SNARKs (Succinct
 Non-Interactive Arguments of Knowledge) that enables a prover to
@@ -70,14 +71,11 @@ satisfied. It leverages elliptic curve operations, a polynomial
 commitment scheme, and the Fiat-Shamir heuristic to achieve
 non-interactivity and zero-knowledge properties.
 
-\hypertarget{notation}{%
-\subsection{1. Notation}\label{notation}}
+\subsection{1. Notation}\label{notation}
 
-\hypertarget{basics}{%
-\subsubsection{1.1. Basics}\label{basics}}
+\subsubsection{1.1. Basics}\label{basics}
 
-\hypertarget{basic-sets}{%
-\paragraph{Basic Sets}\label{basic-sets}}
+\paragraph{Basic Sets}\label{basic-sets}
 
 \begin{itemize}
 \tightlist
@@ -87,8 +85,7 @@ non-interactivity and zero-knowledge properties.
   \(\mathbb{B} = \mathbb{N}_2\)
 \end{itemize}
 
-\hypertarget{vectors-operations}{%
-\paragraph{Vectors Operations}\label{vectors-operations}}
+\paragraph{Vectors Operations}\label{vectors-operations}
 
 \begin{itemize}
 \tightlist
@@ -100,18 +97,18 @@ non-interactivity and zero-knowledge properties.
   \(x^{\|n} = (x, \ldots, x) \in X^n\)
 \end{itemize}
 
-\hypertarget{kronecker-delta}{%
-\paragraph{Kronecker Delta}\label{kronecker-delta}}
+\paragraph{Kronecker Delta}\label{kronecker-delta}
 
 \begin{itemize}
 \tightlist
 \item
-  \(\delta_{ij} = \begin{cases} 1 & i = j \\ 0 & i \neq j \end{cases}\)
+  \(\delta_{ij} = \begin{cases}
+  1 & i = j \\
+  0 & i \neq j
+  \end{cases}\)
 \end{itemize}
 
-\hypertarget{lagrange-basis-polynomials}{%
-\paragraph{Lagrange Basis
-Polynomials}\label{lagrange-basis-polynomials}}
+\paragraph{Lagrange Basis Polynomials}\label{lagrange-basis-polynomials}
 
 \begin{itemize}
 \tightlist
@@ -119,8 +116,7 @@ Polynomials}\label{lagrange-basis-polynomials}}
   \(L_i = L_{\mathbb{D}, i} \in \mathbb{F}[X]^{<N},\ \ i \in \mathbb{N}_N,\ \ L_i(\omega^j) = \delta_{ij}\)
 \end{itemize}
 
-\hypertarget{curves-and-fields}{%
-\subsubsection{1.2. Curves and Fields}\label{curves-and-fields}}
+\subsubsection{1.2. Curves and Fields}\label{curves-and-fields}
 
 \begin{itemize}
 \tightlist
@@ -135,8 +131,7 @@ Polynomials}\label{lagrange-basis-polynomials}}
   \end{itemize}
 \end{itemize}
 
-\hypertarget{elliptic-curves}{%
-\paragraph{Elliptic Curves}\label{elliptic-curves}}
+\paragraph{Elliptic Curves}\label{elliptic-curves}
 
 \begin{itemize}
 \tightlist
@@ -151,8 +146,7 @@ Polynomials}\label{lagrange-basis-polynomials}}
   \(\tilde{\mathbb{J}}\).
 \end{itemize}
 
-\hypertarget{scalar-field}{%
-\paragraph{Scalar Field}\label{scalar-field}}
+\paragraph{Scalar Field}\label{scalar-field}
 
 \begin{itemize}
 \tightlist
@@ -167,11 +161,9 @@ Polynomials}\label{lagrange-basis-polynomials}}
   domain of size \(N\).
 \end{itemize}
 
-\hypertarget{support-functions}{%
-\subsubsection{1.3. Support Functions}\label{support-functions}}
+\subsubsection{1.3. Support Functions}\label{support-functions}
 
-\hypertarget{unzip}{%
-\paragraph{Unzip}\label{unzip}}
+\paragraph{Unzip}\label{unzip}
 
 \begin{itemize}
 \tightlist
@@ -188,8 +180,7 @@ Polynomials}\label{lagrange-basis-polynomials}}
   \end{itemize}
 \end{itemize}
 
-\hypertarget{polynomial-interpolation}{%
-\paragraph{Polynomial Interpolation}\label{polynomial-interpolation}}
+\paragraph{Polynomial Interpolation}\label{polynomial-interpolation}
 
 \begin{itemize}
 \tightlist
@@ -204,9 +195,8 @@ Polynomials}\label{lagrange-basis-polynomials}}
   \end{itemize}
 \end{itemize}
 
-\hypertarget{polynomial-commitment-scheme}{%
 \paragraph{Polynomial Commitment
-Scheme}\label{polynomial-commitment-scheme}}
+Scheme}\label{polynomial-commitment-scheme}
 
 \begin{itemize}
 \tightlist
@@ -240,8 +230,7 @@ Scheme}\label{polynomial-commitment-scheme}}
   \end{itemize}
 \end{itemize}
 
-\hypertarget{fiat-shamir-transform}{%
-\paragraph{Fiat-Shamir Transform}\label{fiat-shamir-transform}}
+\paragraph{Fiat-Shamir Transform}\label{fiat-shamir-transform}
 
 \begin{itemize}
 \tightlist
@@ -259,11 +248,9 @@ Scheme}\label{polynomial-commitment-scheme}}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\hypertarget{parameters}{%
-\subsection{2. Parameters}\label{parameters}}
+\subsection{2. Parameters}\label{parameters}
 
-\hypertarget{scheme-specific}{%
-\subsubsection{2.1. Scheme Specific}\label{scheme-specific}}
+\subsubsection{2.1. Scheme Specific}\label{scheme-specific}
 
 \begin{itemize}
 \tightlist
@@ -281,8 +268,7 @@ Scheme}\label{polynomial-commitment-scheme}}
   result is never the identity.
 \end{itemize}
 
-\hypertarget{public-data}{%
-\subsubsection{2.2. Public Data}\label{public-data}}
+\subsubsection{2.2. Public Data}\label{public-data}
 
 \begin{itemize}
 \tightlist
@@ -291,8 +277,7 @@ Scheme}\label{polynomial-commitment-scheme}}
   ring, padded with \(\square\) to length \(N_K\) if needed.
 \end{itemize}
 
-\hypertarget{witness-data}{%
-\subsubsection{2.3. Witness Data}\label{witness-data}}
+\subsubsection{2.3. Witness Data}\label{witness-data}
 
 \begin{itemize}
 \tightlist
@@ -304,12 +289,10 @@ Scheme}\label{polynomial-commitment-scheme}}
   prover.
 \end{itemize}
 
-\hypertarget{preprocessing}{%
-\subsubsection{2.4. Preprocessing}\label{preprocessing}}
+\subsubsection{2.4. Preprocessing}\label{preprocessing}
 
-\hypertarget{public-input-preprocessing}{%
 \paragraph{2.4.1. Public Input
-Preprocessing}\label{public-input-preprocessing}}
+Preprocessing}\label{public-input-preprocessing}
 
 Concatenate ring points with scaled multiples of \(H\):
 \[\overline{P} = \overline{PK} \| \overline{H} = (P_0, \ldots, P_{N-5}) \in \mathbb{J}^{N-4}\]
@@ -319,37 +302,31 @@ Concatenate ring points with scaled multiples of \(H\):
 Ring items selector:
 \[\overline{s} = 1^{\|N_K}\ \|\ 0^{\|N-N_K} \in \mathbb{F}^N\]
 
-\hypertarget{interpolation}{%
-\paragraph{2.4.1 Interpolation}\label{interpolation}}
+\paragraph{2.4.1 Interpolation}\label{interpolation}
 
 The resulting vectors are interpolated over \(\mathbb{D}\):
 \[p_x = \text{Interpolate}(\overline{p}_x)\]
 \[p_y = \text{Interpolate}(\overline{p}_y)\]
 \[s = \text{Interpolate}(\overline{s})\]
 
-\hypertarget{commit-to-the-constructed-vectors}{%
 \paragraph{2.4.2. Commit to the constructed
-vectors}\label{commit-to-the-constructed-vectors}}
+vectors}\label{commit-to-the-constructed-vectors}
 
 \[C_{p_x} = \text{PCS.Commit}(p_x)\]
 \[C_{p_y} = \text{PCS.Commit}(p_y)\] \[C_s = \text{PCS.Commit}(s)\]
 
-\hypertarget{relation-to-prove}{%
-\subsubsection{2.5. Relation to Prove}\label{relation-to-prove}}
+\subsubsection{2.5. Relation to Prove}\label{relation-to-prove}
 
 Knowledge of \(k\) and \(t\) such that \(R = PK_k + tH\).
 \[\mathfrak{R}_H = \{ (R, \overline{PK}; k, t) \mid R = PK_k + tH \,;\, R \in \mathbb{J}, \, \overline{PK} \in \mathbb{J}^{N_K}, \, k \in \mathbb{N}_{N_K}, \, t \in \mathbb{F_J} \}\]
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\hypertarget{prover}{%
-\subsection{3. Prover}\label{prover}}
+\subsection{3. Prover}\label{prover}
 
-\hypertarget{witness-polynomials}{%
-\subsubsection{3.1. Witness Polynomials}\label{witness-polynomials}}
+\subsubsection{3.1. Witness Polynomials}\label{witness-polynomials}
 
-\hypertarget{bits-vector}{%
-\paragraph{3.1.1. Bits Vector}\label{bits-vector}}
+\paragraph{3.1.1. Bits Vector}\label{bits-vector}
 
 \begin{itemize}
 \item
@@ -368,9 +345,8 @@ The bits vector \(\overline{b}\) is constructed by concatenating
 
 \[\overline{b} = \overline{k} \| \overline{t} \| (0)\]
 
-\hypertarget{conditional-sum-accumulator-vectors}{%
 \paragraph{3.1.2. Conditional Sum Accumulator
-Vectors}\label{conditional-sum-accumulator-vectors}}
+Vectors}\label{conditional-sum-accumulator-vectors}
 
 \[
 ACC_0 = S, \quad ACC_i = ACC_{i-1} + b_{i-1}P_{i-1}, \quad i = 1, \ldots, N-4
@@ -390,9 +366,8 @@ The resulting accumulator points are finally separated into \(x\) and
 (\overline{acc}_x, \overline{acc}_y) = \text{unzip}(\overline{ACC})
 \]
 
-\hypertarget{inner-product-accumulator-vector}{%
 \paragraph{3.1.3. Inner Product Accumulator
-Vector}\label{inner-product-accumulator-vector}}
+Vector}\label{inner-product-accumulator-vector}
 
 \[
 acc_{ip_0} = 0, \quad acc_{ip_i} = acc_{ip_{i-1}} + b_{i-1}s_{i-1}, \quad i = 1, \ldots, N-4
@@ -407,9 +382,8 @@ acc_{ip_0} = 0, \quad acc_{ip_i} = acc_{ip_{i-1}} + b_{i-1}s_{i-1}, \quad i = 1,
   value and the product of \(b_{i-1}\) and \(s_{i-1}\)
 \end{itemize}
 
-\hypertarget{interpolation-and-commitments}{%
 \paragraph{3.1.4. Interpolation and
-Commitments}\label{interpolation-and-commitments}}
+Commitments}\label{interpolation-and-commitments}
 
 The resulting vectors are interpolated over \(\mathbb{D}\) with random
 values \(\{r_i\}\) appended as padding for the final entries. This
@@ -426,8 +400,7 @@ Commit to the witness derived polynomials:
 \[C_{acc_x} = \text{PCS.Commit}(acc_x)\]
 \[C_{acc_y} = \text{PCS.Commit}(acc_y)\]
 
-\hypertarget{constraints}{%
-\subsubsection{3.2. Constraints}\label{constraints}}
+\subsubsection{3.2. Constraints}\label{constraints}
 
 Constraints are polynomials constructed to evaluate to zero when
 satisfied; a non-zero evaluation indicates a violation.
@@ -437,8 +410,7 @@ Note. When evaluating a polynomial \(f\) at
 \(f(\omega x)\) gives the value of the polynomial at the next position
 in the evaluation domain (\(\omega x = \omega^{k+1}\)).
 
-\hypertarget{inner-product}{%
-\paragraph{3.2.1. Inner Product}\label{inner-product}}
+\paragraph{3.2.1. Inner Product}\label{inner-product}
 
 \[
 c_1(x) = \bigl(acc_{ip}(\omega x) - acc_{ip}(x) - b(x)s(x)\bigr)(x - \omega^{N-4})
@@ -452,13 +424,12 @@ The factor \((x - \omega^{N-4})\) ensures the constraint holds at all
 points including \(x = \omega^{N-4}\), where \(c_1(x)\) automatically
 vanishes.
 
-\hypertarget{conditional-addition}{%
-\paragraph{3.2.2. Conditional Addition}\label{conditional-addition}}
+\paragraph{3.2.2. Conditional Addition}\label{conditional-addition}
 
 \[\begin{aligned}
 c_2(x) = & \biggl( b(x) \Bigl( \bigl(acc_x(x) - p_x(x)\bigr)^2 \bigl(acc_x(x) + p_x(x) + acc_x(\omega x)\bigr) \\
          & \quad - \bigl(p_y(x) - acc_y(x)\bigr)^2 \Bigr) \\
-         & + \bigl(1 - b(x)\bigr) \bigl(acc_x(\omega x) - acc_x(x)\bigr) \biggr) \times (x - \omega^{N-4}) \\
+         & + \bigl(1 - b(x)\bigr) \bigl(acc_y(\omega x) - acc_y(x)\bigr) \biggr) \times (x - \omega^{N-4}) \\
 \end{aligned}\] \[\begin{aligned}
 c_3(x) = & \biggl( b(x) \Bigl( \bigl(acc_x(x) - p_x(x)\bigr)\bigl(acc_y(\omega x) + acc_y(x)\bigr) \\
          & \quad - \bigl(p_y(x) - acc_y(x)\bigr)\bigl(acc_x(\omega x) - acc_x(x)\bigr) \Bigr) \\
@@ -483,10 +454,9 @@ and \(y\) components, respectively, controlled by the Boolean variable
 The factor \((x - \omega^{N-4})\) nullifies the constraint at
 \(x = \omega^{N-4}\), where it does not apply.
 
-\hypertarget{booleanity}{%
-\paragraph{3.2.3. Booleanity}\label{booleanity}}
+\paragraph{3.2.3. Booleanity}\label{booleanity}
 
-\[c_3(x) = b(x)\bigl(1 - b(x)\bigr)\]
+\[c_4(x) = b(x)\bigl(1 - b(x)\bigr)\]
 
 Ensures that the polynomial \(b(x)\) acts as a Boolean variable, taking
 only values 0 or 1.
@@ -494,20 +464,20 @@ only values 0 or 1.
 \begin{itemize}
 \tightlist
 \item
-  \textbf{If} \(b(x) = 0\) or \(b(x) = 1\), then \(c_3(x) = 0\).
+  \textbf{If} \(b(x) = 0\) or \(b(x) = 1\), then \(c_4(x) = 0\).
 \item
-  \textbf{If} \(b(x)\) takes any value other than 0 or 1, \(c_3(x)\)
+  \textbf{If} \(b(x)\) takes any value other than 0 or 1, \(c_4(x)\)
   will be non-zero, violating the constraint.
 \end{itemize}
 
-\hypertarget{conditional-addition-boundary}{%
 \paragraph{3.2.4. Conditional Addition
-Boundary}\label{conditional-addition-boundary}}
+Boundary}\label{conditional-addition-boundary}
 
-Given the seed point \(S = (s_x, s_y)\) and the expected result delta
-from the seed point \(R = (r_x, r_y)\), the constraints are:
-\[c_5(x) = \bigl(acc_x(x) - s_x\bigr)L_0(x) + \bigl(acc_x(x) - r_x - s_x\bigr)L_{N-4}(x)\]
-\[c_6(x) = \bigl(acc_y(x) - s_y\bigr)L_0(x) + \bigl(acc_y(x) - r_y - s_y\bigr)L_{N-4}(x)\]
+Given the seed point \(S = (s_x, s_y)\) and the expected result
+\(R = (r_x, r_y)\), the verifier computes \(E = S + R\) (EC point
+addition) with \(E = (e_x, e_y)\). The constraints are:
+\[c_5(x) = \bigl(acc_x(x) - s_x\bigr)L_0(x) + \bigl(acc_x(x) - e_x\bigr)L_{N-4}(x)\]
+\[c_6(x) = \bigl(acc_y(x) - s_y\bigr)L_0(x) + \bigl(acc_y(x) - e_y\bigr)L_{N-4}(x)\]
 
 These constraints ensure the accumulator components take specific values
 at the conditional addition boundaries:
@@ -519,12 +489,11 @@ at the conditional addition boundaries:
   enforcing \(acc_x(\omega^0) = s_x\) and \(acc_y(\omega^0) = s_y\).
 \item
   \textbf{At} \(x = \omega^{N-4}\): \(L_0(x) = 0\) and
-  \(L_{N-4}(x) = 1\), enforcing \(acc_x(\omega^{N-4}) = r_x + s_x\) and
-  \(acc_y(\omega^{N-4}) = r_y + s_y\).
+  \(L_{N-4}(x) = 1\), enforcing \(acc_x(\omega^{N-4}) = e_x\) and
+  \(acc_y(\omega^{N-4}) = e_y\).
 \end{itemize}
 
-\hypertarget{inner-product-boundary}{%
-\paragraph{3.2.5. Inner Product Boundary}\label{inner-product-boundary}}
+\paragraph{3.2.5. Inner Product Boundary}\label{inner-product-boundary}
 
 \[c_7(x) = acc_{ip}(x)L_0(x) + \bigl(acc_{ip}(x) - 1\bigr)L_{N-4}(x)\]
 
@@ -541,12 +510,10 @@ at the conditional addition boundaries:
   \(L_{N-4}(x) = 1\), enforcing \(acc_{ip}(\omega^{N-4}) =1\).
 \end{itemize}
 
-\hypertarget{constraints-aggregation}{%
 \subsubsection{3.3. Constraints
-Aggregation}\label{constraints-aggregation}}
+Aggregation}\label{constraints-aggregation}
 
-\hypertarget{aggregation-polynomial}{%
-\paragraph{3.3.1. Aggregation Polynomial}\label{aggregation-polynomial}}
+\paragraph{3.3.1. Aggregation Polynomial}\label{aggregation-polynomial}
 
 The protocol aggregates all constraints into a single polynomial for
 efficiency.
@@ -563,8 +530,7 @@ enforcing the constraints across the entire evaluation domain, including
 the last three points where random evaluation values were used during
 the witness polynomials interpolation phase.
 
-\hypertarget{quotient-polynomial}{%
-\paragraph{3.3.2. Quotient Polynomial}\label{quotient-polynomial}}
+\paragraph{3.3.2. Quotient Polynomial}\label{quotient-polynomial}
 
 The quotient polynomial is computed as: \[q(x) = \frac{c(x)}{x^N - 1}\]
 
@@ -572,9 +538,8 @@ Dividing by \(X^N - 1\) ensures that the aggregated constraints encoded
 in \(c(x)\) are enforced consistently across the entire evaluation
 domain \(\mathbb{D}\) while reducing the degree of the polynomial.
 
-\hypertarget{quotient-polynomial-commitment-and-challenge}{%
 \paragraph{3.3.3. Quotient Polynomial Commitment and
-Challenge}\label{quotient-polynomial-commitment-and-challenge}}
+Challenge}\label{quotient-polynomial-commitment-and-challenge}
 
 The prover commits to the quotient polynomial \(q\):
 \[C_q = \text{PCS.Commit}(q)\]
@@ -582,9 +547,8 @@ The prover commits to the quotient polynomial \(q\):
 The prover receives the evaluation point \(\zeta\) in response:
 \[\zeta \leftarrow \text{FS}(C_q)\]
 
-\hypertarget{relevant-polynomials-evaluation}{%
 \paragraph{3.3.4. Relevant Polynomials
-Evaluation}\label{relevant-polynomials-evaluation}}
+Evaluation}\label{relevant-polynomials-evaluation}
 
 Evaluate the relevant polynomials at the sampled evaluation point
 \(\zeta\): \[p_{x,\zeta} = p_x(\zeta)\] \[p_{y,\zeta} = p_y(\zeta)\]
@@ -592,9 +556,8 @@ Evaluate the relevant polynomials at the sampled evaluation point
 \[acc_{ip,\zeta} = acc_{ip}(\zeta)\] \[acc_{x,\zeta} = acc_x(\zeta)\]
 \[acc_{y,\zeta} = acc_y(\zeta)\]
 
-\hypertarget{linearization-polynomial}{%
 \paragraph{3.3.5. Linearization
-Polynomial}\label{linearization-polynomial}}
+Polynomial}\label{linearization-polynomial}
 
 The linearization polynomials are constructed to enable the verifier to
 evaluate certain parts of the constraint polynomials at \(\zeta \omega\)
@@ -616,9 +579,8 @@ Linearized constraints are aggregated using \(\{\alpha_i\}\)
 coefficients and evaluated at \(\zeta \omega\):
 \[l(x)=\sum_{i=1}^3\alpha_i l_i(x)\] \[l_{\zeta\omega}=l(\zeta\omega)\]
 
-\hypertarget{sample-aggregation-coefficients}{%
 \paragraph{3.3.6. Sample Aggregation
-Coefficients}\label{sample-aggregation-coefficients}}
+Coefficients}\label{sample-aggregation-coefficients}
 
 Sample the aggregation coefficients \(\{\nu_i\}\) using the Fiat-Shamir
 heuristic and compute the aggregate polynomial \(agg\):
@@ -627,8 +589,7 @@ heuristic and compute the aggregate polynomial \(agg\):
 Construct the aggregate polynomial:
 \[agg(x)=\nu_1p_x(x)+\nu_2p_y(x)+\nu_3s(x)+\nu_4b(x)+\nu_5acc_{ip}(x)+\nu_6acc_x(x)+\nu_7acc_y(x)+\nu_8q(x)\]
 
-\hypertarget{proof-construction}{%
-\paragraph{3.3.7. Proof Construction}\label{proof-construction}}
+\paragraph{3.3.7. Proof Construction}\label{proof-construction}
 
 Open the aggregate polynomial \(agg\) at \(\zeta\) and the linearization
 polynomial \(l\) at \(\zeta\omega\):
@@ -640,39 +601,33 @@ Construct the proof as follows:
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\hypertarget{verifier}{%
-\subsection{4. Verifier}\label{verifier}}
+\subsection{4. Verifier}\label{verifier}
 
-\hypertarget{inputs}{%
-\subsubsection{4.1. Inputs}\label{inputs}}
+\subsubsection{4.1. Inputs}\label{inputs}
 
 Commitments to the ring public keys and the selector, prepared during
 the pre-processing phase: \[(C_{p_x}, C_{p_y}, C_s)\]
 
-The claimed accumulation result, allegedly \(PK_k + tH\) for some \(k\)
-and \(t\) known to the prover. This is the primary element to be
-assessed: \[R = (r_x, r_y)\]
+The claimed result point, allegedly \(R = PK_k + tH\) for some \(k\) and
+\(t\) known to the prover: \[R = (r_x, r_y)\]
 
 Proof which contains all the necessary commitments, evaluations, and
 openings needed for the verifier to perform the validation checks: \[
 \Pi = (C_b, C_{acc_{ip}}, C_{acc_x}, C_{acc_y}, p_{x,\zeta}, p_{y,\zeta}, s_\zeta, b_\zeta, ip_{\zeta}, ac_{x,\zeta}, ac_{y,\zeta}, C_q, l_{\zeta\omega}, \Pi_\zeta, \Pi_{\zeta\omega})
 \]
 
-\hypertarget{verification}{%
-\subsubsection{4.2. Verification}\label{verification}}
+\subsubsection{4.2. Verification}\label{verification}
 
-\hypertarget{fiat-shamir-challenges}{%
-\paragraph{4.2.1. Fiat-Shamir Challenges}\label{fiat-shamir-challenges}}
+\paragraph{4.2.1. Fiat-Shamir Challenges}\label{fiat-shamir-challenges}
 
 Recovery of aggregation coefficients and evaluation point:
 \[\{\alpha_i\}_{i=1}^7 \leftarrow \text{FS}(C_b, C_{ip}, C_{acc_x}, C_{acc_y})\]
 \[\zeta \leftarrow \text{FS}(C_q)\]
 \[\{\nu_i\}_{i=1}^8 \leftarrow \text{FS}(p_{x,\zeta}, p_{y,\zeta}, s_\zeta, b_\zeta, acc_{ip,\zeta}, acc_{x,\zeta}, acc_{y,\zeta}, l_{\zeta\omega})\]
 
-\hypertarget{contributions-to-the-constraints-evaluated-at-zeta}{%
 \paragraph{\texorpdfstring{4.2.2. Contributions to the Constraints
 Evaluated at
-\(\zeta\)}{4.2.2. Contributions to the Constraints Evaluated at \textbackslash zeta}}\label{contributions-to-the-constraints-evaluated-at-zeta}}
+\(\zeta\)}{4.2.2. Contributions to the Constraints Evaluated at \textbackslash zeta}}\label{contributions-to-the-constraints-evaluated-at-zeta}
 
 The following expressions represent the contributions to the constraint
 polynomials evaluated at the point \(\zeta\):
@@ -680,8 +635,8 @@ polynomials evaluated at the point \(\zeta\):
 \[\tilde{c}_{2,\zeta}=\left\{b_\zeta\left[(acc_{x,\zeta}-p_{x,\zeta})^2(acc_{x,\zeta}+p_{x,\zeta})-(p_{y,\zeta}-acc_{y,\zeta})^2\right]-(1-b_\zeta)acc_{y,\zeta}\right\}(\zeta-\omega^{N-4})\]
 \[\tilde{c}_{3,\zeta}=\left\{b_\zeta\left[(acc_{x,\zeta}-p_{x,\zeta})acc_{y,\zeta}+(p_{y,\zeta}-acc_{y,\zeta})acc_{x,\zeta}\right]-(1-b_\zeta)acc_{x,\zeta}\right\}(\zeta-\omega^{N-4})\]
 \[c_4=b_{\zeta}(1-b_{\zeta})\]
-\[c_5=(acc_{x,\zeta}-s_x)L_0(\zeta)+(acc_{x,\zeta}-r_x-s_x)L_{N-4}(\zeta)\]
-\[c_6=(acc_{y,\zeta}-s_y)L_0(\zeta)+(acc_{y,\zeta}-r_y-s_y)L_{N-4}(\zeta)\]
+\[c_5=(acc_{x,\zeta}-s_x)L_0(\zeta)+(acc_{x,\zeta}-e_x)L_{N-4}(\zeta)\]
+\[c_6=(acc_{y,\zeta}-s_y)L_0(\zeta)+(acc_{y,\zeta}-e_y)L_{N-4}(\zeta)\]
 \[c_7=acc_{ip,\zeta}L_0(\zeta)+(acc_{ip,\zeta}-1)L_{N-4}(\zeta)\]
 
 \textbf{Note:} The tilde ( \(\tilde{}\) ) above the first three
@@ -690,10 +645,9 @@ representing the components evaluated at \(\zeta\). The components
 evaluated at \(\zeta \omega\) are added later by the linearization
 aggregated polynomial found within the proof (\(l_{\zeta\omega}\)).
 
-\hypertarget{evaluation-of-the-quotient-polynomial-at-zeta}{%
 \paragraph{\texorpdfstring{4.2.3. Evaluation of the Quotient Polynomial
 at
-\(\zeta\)}{4.2.3. Evaluation of the Quotient Polynomial at \textbackslash zeta}}\label{evaluation-of-the-quotient-polynomial-at-zeta}}
+\(\zeta\)}{4.2.3. Evaluation of the Quotient Polynomial at \textbackslash zeta}}\label{evaluation-of-the-quotient-polynomial-at-zeta}
 
 Aggregate the contributions along with the linearization polynomial
 evaluated at \(\zeta \omega\) to compute the evaluation of the quotient
@@ -712,10 +666,9 @@ Verify the aggregate polynomial opening at \(\zeta\) using
 \(\Pi_\zeta\):
 \[\text{PCS.Verify}(C_{agg}, \zeta, agg_\zeta, \Pi_\zeta)\]
 
-\hypertarget{evaluation-of-the-linearization-polynomial-at-zeta-omega}{%
 \paragraph{\texorpdfstring{4.2.4. Evaluation of the Linearization
 Polynomial at
-\(\zeta \omega\)}{4.2.4. Evaluation of the Linearization Polynomial at \textbackslash zeta \textbackslash omega}}\label{evaluation-of-the-linearization-polynomial-at-zeta-omega}}
+\(\zeta \omega\)}{4.2.4. Evaluation of the Linearization Polynomial at \textbackslash zeta \textbackslash omega}}\label{evaluation-of-the-linearization-polynomial-at-zeta-omega}
 
 Compute the individual linearization polynomial commitments:
 \[C_{l_1}=(\zeta-\omega^{N-4})C_{acc_{ip}}\]
@@ -729,14 +682,12 @@ Verify the aggregate linearization polynomial opening at
 \(\zeta \omega\) using \(\Pi_{\zeta\omega}\):
 \[\text{PCS.Verify}(C_{l},\zeta\omega,l_{\zeta\omega},\Pi_{\zeta\omega})\]
 
-\hypertarget{acknowledgements}{%
-\subsection{5. Acknowledgements}\label{acknowledgements}}
+\subsection{5. Acknowledgements}\label{acknowledgements}
 
 This specification is primarily derived from Sergey Vasilyev's original
 writeup and reference implementation, as cited in the references.
 
-\hypertarget{references}{%
-\subsection{6. References}\label{references}}
+\subsection{6. References}\label{references}
 
 \begin{itemize}
 \tightlist
