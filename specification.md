@@ -96,7 +96,7 @@ non-interactivity and zero-knowledge properties.
 
 - $\square \in \mathbb{J}$ -- Padding element, a point on $\mathbb{J}$ with unknown discrete logarithm.
 - $H \in \mathbb{J}$ -- Pedersen blinding base point.
-- $\overline{H} = (H, 2H, 4H, \ldots, 2^{N_{J-1}}H) \in \mathbb{J}^{N_J}$ -- Vector of scaled multiples of $H$.
+- $\overline{H} = (H, 2H, 4H, \ldots, 2^{N_J-1}H) \in \mathbb{J}^{N_J}$ -- Vector of scaled multiples of $H$.
 - $S \in \mathbb{J}$ -- Seed point for accumulation, with unknown discrete logarithm. Choosing $S \in \tilde{\mathbb{J}} \setminus \mathbb{J}$ is strongly recommended as it guarantees the accumulator never reaches the identity element.
 
 ### 2.2. Public Data
@@ -344,7 +344,7 @@ $$R = (r_x, r_y)$$
 
 Proof which contains all the necessary commitments, evaluations, and openings needed for the verifier to perform the validation checks:
 $$
-\Pi = (C_b, C_{acc_{ip}}, C_{acc_x}, C_{acc_y}, p_{x,\zeta}, p_{y,\zeta}, s_\zeta, b_\zeta, ip_{\zeta}, ac_{x,\zeta}, ac_{y,\zeta}, C_q, l_{\zeta\omega}, \Pi_\zeta, \Pi_{\zeta\omega})
+\Pi = (C_b, C_{acc_{ip}}, C_{acc_x}, C_{acc_y}, p_{x,\zeta}, p_{y,\zeta}, s_\zeta, b_\zeta, acc_{ip,\zeta}, acc_{x,\zeta}, acc_{y,\zeta}, C_q, l_{\zeta\omega}, \Pi_\zeta, \Pi_{\zeta\omega})
 $$
 
 ### 4.2. Verification
@@ -352,7 +352,7 @@ $$
 #### 4.2.1. Fiat-Shamir Challenges
 
 Recovery of aggregation coefficients and evaluation point:
-$$\{\alpha_i\}_{i=1}^7 \leftarrow \text{FS}(C_b, C_{ip}, C_{acc_x}, C_{acc_y})$$
+$$\{\alpha_i\}_{i=1}^7 \leftarrow \text{FS}(C_b, C_{acc_{ip}}, C_{acc_x}, C_{acc_y})$$
 $$\zeta \leftarrow \text{FS}(C_q)$$
 $$\{\nu_i\}_{i=1}^8 \leftarrow \text{FS}(p_{x,\zeta}, p_{y,\zeta}, s_\zeta, b_\zeta, acc_{ip,\zeta}, acc_{x,\zeta}, acc_{y,\zeta}, l_{\zeta\omega})$$
 
