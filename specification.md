@@ -182,6 +182,7 @@ $$
 
 - The accumulator is initialized with $0$.
 - The accumulator is updated at each index $i$ based on the previous value and the product of $b_{i-1}$ and $s_{i-1}$
+- This is to ensure that a signer in control of two (or more) different secret keys is not able to generate valid VRF values which are valid for multiple public keys at the same time.
 
 #### 3.1.4. Interpolation and Commitments
 
