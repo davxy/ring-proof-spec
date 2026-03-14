@@ -47,7 +47,7 @@ non-interactivity and zero-knowledge properties.
  
 #### Elliptic Curves
 
-- $J = J / \mathbb{F}$ -- Elliptic curve $J$ defined over the field $\mathbb{F}$.
+- $J = J / \mathbb{F}$ -- Twisted Edwards curve $ax^2 + y^2 = 1 + dx^2y^2$ defined over $\mathbb{F}$, with curve coefficient $a$.
 - $\tilde{\mathbb{J}} = J(\mathbb{F})$ -- Group of $\mathbb{F}$-rational points on $J$.
 - $\mathbb{J} \subset \tilde{\mathbb{J}}$ -- Prime order subgroup of $\tilde{\mathbb{J}}$.
 
@@ -208,14 +208,14 @@ The factor $(x - \omega^{N-4})$ ensures the constraint holds at all points inclu
 #### 3.2.2. Conditional Addition
 
 $$\begin{aligned}
-c_2(x) = & \biggl( b(x) \Bigl( \bigl(acc_x(x) - p_x(x)\bigr)^2 \bigl(acc_x(x) + p_x(x) + acc_x(\omega x)\bigr) \\
-         & \quad - \bigl(p_y(x) - acc_y(x)\bigr)^2 \Bigr) \\
-         & + \bigl(1 - b(x)\bigr) \bigl(acc_y(\omega x) - acc_y(x)\bigr) \biggr) \times (x - \omega^{N-4}) \\
+c_2(x) = & \biggl( b(x) \Bigl( acc_x(\omega x)\bigl(acc_y(x) \cdot p_y(x) + a \cdot acc_x(x) \cdot p_x(x)\bigr) \\
+         & \quad - acc_x(x) \cdot acc_y(x) - p_x(x) \cdot p_y(x) \Bigr) \\
+         & + \bigl(1 - b(x)\bigr) \bigl(acc_x(\omega x) - acc_x(x)\bigr) \biggr) \times (x - \omega^{N-4}) \\
 \end{aligned}$$
 $$\begin{aligned}
-c_3(x) = & \biggl( b(x) \Bigl( \bigl(acc_x(x) - p_x(x)\bigr)\bigl(acc_y(\omega x) + acc_y(x)\bigr) \\
-         & \quad - \bigl(p_y(x) - acc_y(x)\bigr)\bigl(acc_x(\omega x) - acc_x(x)\bigr) \Bigr) \\
-         & + \bigl(1 - b(x)\bigr) \bigl(acc_x(\omega x) - acc_x(x)\bigr) \biggr) \times (x - \omega^{N-4})
+c_3(x) = & \biggl( b(x) \Bigl( acc_y(\omega x)\bigl(acc_x(x) \cdot p_y(x) - p_x(x) \cdot acc_y(x)\bigr) \\
+         & \quad - acc_x(x) \cdot acc_y(x) + p_x(x) \cdot p_y(x) \Bigr) \\
+         & + \bigl(1 - b(x)\bigr) \bigl(acc_y(\omega x) - acc_y(x)\bigr) \biggr) \times (x - \omega^{N-4})
 \end{aligned}$$
 
 These constraints enforce correct elliptic curve addition for the $x$ and $y$ components, respectively, controlled by the Boolean variable $b(x)$:
@@ -304,8 +304,8 @@ Accumulator inner product ($c_1$) contribution:
 $$l_1(x)=(\zeta - \omega^{N-4})acc_{ip}(x)$$
 
 Conditional addition accumulators ($c_{2,3}$) contributions:
-$$l_2(x)=(\zeta-\omega^{N-4})\bigl(b_\zeta(acc_{x,\zeta}-p_{x,\zeta})^2acc_x(x)+(1-b_\zeta)acc_y(x)\bigr)$$
-$$l_3(x)=(\zeta-\omega^{N-4})\Bigl(\bigl(b_\zeta(acc_{y,\zeta}-p_{y,\zeta})+1-b_\zeta\bigr)acc_x(x)+b_\zeta(acc_{x,\zeta}-p_{x,\zeta})acc_y(x)\Bigr)$$
+$$l_2(x)=(\zeta-\omega^{N-4})\bigl(b_\zeta(acc_{y,\zeta} \cdot p_{y,\zeta}+a \cdot acc_{x,\zeta} \cdot p_{x,\zeta})+1-b_\zeta\bigr)acc_x(x)$$
+$$l_3(x)=(\zeta-\omega^{N-4})\bigl(b_\zeta(acc_{x,\zeta} \cdot p_{y,\zeta}-p_{x,\zeta} \cdot acc_{y,\zeta})+1-b_\zeta\bigr)acc_y(x)$$
 
 Linearized constraints are aggregated using $\{\alpha_i\}$ coefficients and evaluated at $\zeta \omega$:
 $$l(x)=\sum_{i=1}^3\alpha_i l_i(x)$$
@@ -358,8 +358,8 @@ $$\{\nu_i\}_{i=1}^8 \leftarrow \text{FS}(p_{x,\zeta}, p_{y,\zeta}, s_\zeta, b_\z
 
 The following expressions represent the contributions to the constraint polynomials evaluated at the point $\zeta$:
 $$\tilde{c}_{1,\zeta}=-(acc_{ip,\zeta}+b_\zeta s_\zeta)(\zeta-\omega^{N-4})$$
-$$\tilde{c}_{2,\zeta}=\left\{b_\zeta\left[(acc_{x,\zeta}-p_{x,\zeta})^2(acc_{x,\zeta}+p_{x,\zeta})-(p_{y,\zeta}-acc_{y,\zeta})^2\right]-(1-b_\zeta)acc_{y,\zeta}\right\}(\zeta-\omega^{N-4})$$
-$$\tilde{c}_{3,\zeta}=\left\{b_\zeta\left[(acc_{x,\zeta}-p_{x,\zeta})acc_{y,\zeta}+(p_{y,\zeta}-acc_{y,\zeta})acc_{x,\zeta}\right]-(1-b_\zeta)acc_{x,\zeta}\right\}(\zeta-\omega^{N-4})$$
+$$\tilde{c}_{2,\zeta}=\left\{-b_\zeta(acc_{x,\zeta} \cdot acc_{y,\zeta}+p_{x,\zeta} \cdot p_{y,\zeta})-(1-b_\zeta)acc_{x,\zeta}\right\}(\zeta-\omega^{N-4})$$
+$$\tilde{c}_{3,\zeta}=\left\{-b_\zeta(acc_{x,\zeta} \cdot acc_{y,\zeta}-p_{x,\zeta} \cdot p_{y,\zeta})-(1-b_\zeta)acc_{y,\zeta}\right\}(\zeta-\omega^{N-4})$$
 $$c_4=b_{\zeta}(1-b_{\zeta})$$
 $$c_5=(acc_{x,\zeta}-s_x)L_0(\zeta)+(acc_{x,\zeta}-e_x)L_{N-4}(\zeta)$$
 $$c_6=(acc_{y,\zeta}-s_y)L_0(\zeta)+(acc_{y,\zeta}-e_y)L_{N-4}(\zeta)$$
@@ -385,8 +385,8 @@ $$\text{PCS.Verify}(C_{agg}, \zeta, agg_\zeta, \Pi_\zeta)$$
 
 Compute the individual linearization polynomial commitments:
 $$C_{l_1}=(\zeta-\omega^{N-4})C_{acc_{ip}}$$
-$$C_{l_2}=(\zeta-\omega^{N-4})\left(b_\zeta(acc_{x,\zeta}-p_{x,\zeta})^2C_{acc_x}+(1-b_\zeta)C_{acc_y}\right)$$
-$$C_{l_3}=(\zeta-\omega^{N-4})\left(\left(b_\zeta(acc_{y,\zeta}-p_{y,\zeta})+1-b_\zeta\right)C_{acc_x}+b_\zeta(acc_{x,\zeta}-p_{x,\zeta}) C_{acc_y}\right)$$
+$$C_{l_2}=(\zeta-\omega^{N-4})\bigl(b_\zeta(acc_{y,\zeta} \cdot p_{y,\zeta}+a \cdot acc_{x,\zeta} \cdot p_{x,\zeta})+1-b_\zeta\bigr)C_{acc_x}$$
+$$C_{l_3}=(\zeta-\omega^{N-4})\bigl(b_\zeta(acc_{x,\zeta} \cdot p_{y,\zeta}-p_{x,\zeta} \cdot acc_{y,\zeta})+1-b_\zeta\bigr)C_{acc_y}$$
 
 Aggregate the linearization polynomial commitments using $\{\alpha_i\}$ coefficients.
 $$C_l=\sum_{i=1}^3\alpha_iC_{l_i}$$
