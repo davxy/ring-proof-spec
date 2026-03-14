@@ -233,6 +233,10 @@ Scheme}\label{polynomial-commitment-scheme}
   \end{itemize}
 \end{itemize}
 
+The reference implementation uses fflonk, a KZG variant that batches
+multiple polynomial openings into a single group element, reducing proof
+size and verification cost.
+
 \paragraph{Fiat-Shamir Transform}\label{fiat-shamir-transform}
 
 \begin{itemize}

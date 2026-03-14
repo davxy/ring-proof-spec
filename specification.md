@@ -83,10 +83,14 @@ non-interactivity and zero-knowledge properties.
 - $\text{PCS.Verify}: (\mathbb{G}, \mathbb{F}, \mathbb{F}, \Pi) \to \mathbb{B};\ \ (C_f,x,y ,\pi) \mapsto (0|1)$
   - Verifies whether $y = f(x)$ given the commitment $C_f$ and proof $\pi$.
 
+The reference implementation uses fflonk, a KZG variant that batches multiple polynomial openings into a single group element, reducing proof size and verification cost.
+
 #### Fiat-Shamir Transform
 
 - $\text{FS}: \mathbb{S} \to \mathbb{F};\ \textbf{s} \mapsto x$
   - Maps a serializable object $\textbf{s} \in \mathbb{S}$ to $\mathbb{F}$, typically via some cryptographically secure hash function.
+
+The reference implementation uses `ark-transcript`, a Merlin-like transcript based on SHAKE128 that appends the length of the serialized object (rather than prepending it as Merlin does).
 
 ---
 
@@ -406,6 +410,7 @@ and reference implementation, as cited in the references.
 
 ## 6. References
 
-- These notes on hackmd: `https://hackmd.io/@davxy/r1SVPqQc0`.
 - Sergey Vasilyev original writeup: `https://hackmd.io/ulW5nFFpTwClHsD0kusJAA`
 - W3F reference implementation: `https://github.com/w3f/ring-proof`
+- fflonk (KZG variant): `https://crates.io/crates/fflonk`
+- ark-transcript (Fiat-Shamir): `https://crates.io/crates/ark-transcript`
