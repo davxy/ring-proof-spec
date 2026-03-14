@@ -118,20 +118,20 @@ $$\overline{p}_x = (P_{x,0}, \ldots, P_{x,N-5}, 0, 0, 0, 0) \in \mathbb{F}^N$$
 $$\overline{p}_y = (P_{y,0}, \ldots, P_{y,N-5}, 0, 0, 0, 0) \in \mathbb{F}^N$$
 
 Ring items selector:
-$$\overline{s} = 1^{\|N_K}\ \|\ 0^{\|N-N_K} \in \mathbb{F}^N$$
+$$\overline{\sigma} = 1^{\|N_K}\ \|\ 0^{\|N-N_K} \in \mathbb{F}^N$$
 
 #### 2.4.2. Interpolation
 
 The resulting vectors are interpolated over $\mathbb{D}$:
 $$p_x = \text{Interpolate}(\overline{p}_x)$$
 $$p_y = \text{Interpolate}(\overline{p}_y)$$
-$$s = \text{Interpolate}(\overline{s})$$
+$$\sigma = \text{Interpolate}(\overline{\sigma})$$
 
 #### 2.4.3. Commit to the constructed vectors
 
 $$C_{p_x} = \text{PCS.Commit}(p_x)$$
 $$C_{p_y} = \text{PCS.Commit}(p_y)$$
-$$C_s = \text{PCS.Commit}(s)$$
+$$C_\sigma = \text{PCS.Commit}(\sigma)$$
 
 ### 2.5. Relation to Prove
 
@@ -171,7 +171,7 @@ $$
 #### 3.1.3. Inner Product Accumulator Vector
 
 $$
-acc_{ip_0} = 0, \quad acc_{ip_i} = acc_{ip_{i-1}} + b_{i-1}s_{i-1}, \quad i = 1, \ldots, N-4
+acc_{ip_0} = 0, \quad acc_{ip_i} = acc_{ip_{i-1}} + b_{i-1}\sigma_{i-1}, \quad i = 1, \ldots, N-4
 $$
 
 - The accumulator is initialized with $0$.
@@ -200,10 +200,10 @@ Note. When evaluating a polynomial $f$ at $x = \omega^k \in \mathbb{D}$ for some
 #### 3.2.1. Inner Product
 
 $$
-c_1(x) = \bigl(acc_{ip}(\omega x) - acc_{ip}(x) - b(x)s(x)\bigr)(x - \omega^{N-4})
+c_1(x) = \bigl(acc_{ip}(\omega x) - acc_{ip}(x) - b(x)\sigma(x)\bigr)(x - \omega^{N-4})
 $$
 
-This constraint ensures the inner product accumulator $acc_{ip}(x)$ is correctly updated, satisfying $acc_{ip}(\omega x) = acc_{ip}(x) + b(x)s(x)$.
+This constraint ensures the inner product accumulator $acc_{ip}(x)$ is correctly updated, satisfying $acc_{ip}(\omega x) = acc_{ip}(x) + b(x)\sigma(x)$.
 
 The factor $(x - \omega^{N-4})$ ensures the constraint holds at all points including $x = \omega^{N-4}$, where $c_1(x)$ automatically vanishes.
 
@@ -290,7 +290,7 @@ $$\zeta \leftarrow \text{FS}(C_q)$$
 Evaluate the relevant polynomials at the sampled evaluation point $\zeta$:
 $$p_{x,\zeta} = p_x(\zeta)$$
 $$p_{y,\zeta} = p_y(\zeta)$$
-$$s_\zeta = s(\zeta)$$
+$$\sigma_\zeta = \sigma(\zeta)$$
 $$b_\zeta = b(\zeta)$$
 $$acc_{ip,\zeta} = acc_{ip}(\zeta)$$
 $$acc_{x,\zeta} = acc_x(\zeta)$$
@@ -316,10 +316,10 @@ $$l_{\zeta\omega}=l(\zeta\omega)$$
 #### 3.3.6. Sample Aggregation Coefficients
 
 Sample the aggregation coefficients $\{\nu_i\}$ using the Fiat-Shamir heuristic and compute the aggregate polynomial $agg$:
-$$\{\nu_i\}_{i=1}^8 \leftarrow \text{FS}(p_{x,\zeta}, p_{y,\zeta}, s_\zeta, b_\zeta, acc_{ip,\zeta}, acc_{x,\zeta}, acc_{y,\zeta}, l_{\zeta\omega})$$
+$$\{\nu_i\}_{i=1}^8 \leftarrow \text{FS}(p_{x,\zeta}, p_{y,\zeta}, \sigma_\zeta, b_\zeta, acc_{ip,\zeta}, acc_{x,\zeta}, acc_{y,\zeta}, l_{\zeta\omega})$$
 
 Construct the aggregate polynomial:
-$$agg(x)=\nu_1p_x(x)+\nu_2p_y(x)+\nu_3s(x)+\nu_4b(x)+\nu_5acc_{ip}(x)+\nu_6acc_x(x)+\nu_7acc_y(x)+\nu_8q(x)$$
+$$agg(x)=\nu_1p_x(x)+\nu_2p_y(x)+\nu_3\sigma(x)+\nu_4b(x)+\nu_5acc_{ip}(x)+\nu_6acc_x(x)+\nu_7acc_y(x)+\nu_8q(x)$$
 
 #### 3.3.7. Proof Construction
 
@@ -328,7 +328,7 @@ $$\Pi_\zeta = \text{PCS.Open}(agg,\zeta)$$
 $$\Pi_{\zeta\omega} = \text{PCS.Open}(l,\zeta\omega)$$
 
 Construct the proof as follows:
-$$\Pi=(C_b,C_{acc_{ip}},C_{acc_x},C_{acc_y},p_{x,\zeta},p_{y,\zeta},s_\zeta,b_\zeta,acc_{ip,\zeta},acc_{x,\zeta},acc_{y,\zeta},C_q,l_{\zeta\omega},\Pi_\zeta,\Pi_{\zeta\omega})$$
+$$\Pi=(C_b,C_{acc_{ip}},C_{acc_x},C_{acc_y},p_{x,\zeta},p_{y,\zeta},\sigma_\zeta,b_\zeta,acc_{ip,\zeta},acc_{x,\zeta},acc_{y,\zeta},C_q,l_{\zeta\omega},\Pi_\zeta,\Pi_{\zeta\omega})$$
 
 ---
 
@@ -337,14 +337,14 @@ $$\Pi=(C_b,C_{acc_{ip}},C_{acc_x},C_{acc_y},p_{x,\zeta},p_{y,\zeta},s_\zeta,b_\z
 ### 4.1. Inputs
 
 Commitments to the ring public keys and the selector, prepared during the pre-processing phase:
-$$(C_{p_x}, C_{p_y}, C_s)$$
+$$(C_{p_x}, C_{p_y}, C_\sigma)$$
 
 The claimed result point, allegedly $R = PK_k + tH$ for some $k$ and $t$ known to the prover:
 $$R = (r_x, r_y)$$
 
 Proof which contains all the necessary commitments, evaluations, and openings needed for the verifier to perform the validation checks:
 $$
-\Pi = (C_b, C_{acc_{ip}}, C_{acc_x}, C_{acc_y}, p_{x,\zeta}, p_{y,\zeta}, s_\zeta, b_\zeta, acc_{ip,\zeta}, acc_{x,\zeta}, acc_{y,\zeta}, C_q, l_{\zeta\omega}, \Pi_\zeta, \Pi_{\zeta\omega})
+\Pi = (C_b, C_{acc_{ip}}, C_{acc_x}, C_{acc_y}, p_{x,\zeta}, p_{y,\zeta}, \sigma_\zeta, b_\zeta, acc_{ip,\zeta}, acc_{x,\zeta}, acc_{y,\zeta}, C_q, l_{\zeta\omega}, \Pi_\zeta, \Pi_{\zeta\omega})
 $$
 
 ### 4.2. Verification
@@ -354,12 +354,12 @@ $$
 Recovery of aggregation coefficients and evaluation point:
 $$\{\alpha_i\}_{i=1}^7 \leftarrow \text{FS}(C_b, C_{acc_{ip}}, C_{acc_x}, C_{acc_y})$$
 $$\zeta \leftarrow \text{FS}(C_q)$$
-$$\{\nu_i\}_{i=1}^8 \leftarrow \text{FS}(p_{x,\zeta}, p_{y,\zeta}, s_\zeta, b_\zeta, acc_{ip,\zeta}, acc_{x,\zeta}, acc_{y,\zeta}, l_{\zeta\omega})$$
+$$\{\nu_i\}_{i=1}^8 \leftarrow \text{FS}(p_{x,\zeta}, p_{y,\zeta}, \sigma_\zeta, b_\zeta, acc_{ip,\zeta}, acc_{x,\zeta}, acc_{y,\zeta}, l_{\zeta\omega})$$
 
 #### 4.2.2. Contributions to the Constraints Evaluated at $\zeta$
 
 The following expressions represent the contributions to the constraint polynomials evaluated at the point $\zeta$:
-$$\tilde{c}_{1,\zeta}=-(acc_{ip,\zeta}+b_\zeta s_\zeta)(\zeta-\omega^{N-4})$$
+$$\tilde{c}_{1,\zeta}=-(acc_{ip,\zeta}+b_\zeta \sigma_\zeta)(\zeta-\omega^{N-4})$$
 $$\tilde{c}_{2,\zeta}=\left\{-b_\zeta(acc_{x,\zeta} \cdot acc_{y,\zeta}+p_{x,\zeta} \cdot p_{y,\zeta})-(1-b_\zeta)acc_{x,\zeta}\right\}(\zeta-\omega^{N-4})$$
 $$\tilde{c}_{3,\zeta}=\left\{-b_\zeta(acc_{x,\zeta} \cdot acc_{y,\zeta}-p_{x,\zeta} \cdot p_{y,\zeta})-(1-b_\zeta)acc_{y,\zeta}\right\}(\zeta-\omega^{N-4})$$
 $$c_4=b_{\zeta}(1-b_{\zeta})$$
@@ -375,10 +375,10 @@ Aggregate the contributions along with the linearization polynomial evaluated at
 $$q_{\zeta}=\frac{(\sum_{i=1}^7\alpha_ic_i+l_{\zeta\omega})\prod_{k=1}^3(\zeta-\omega^{N-k})}{\zeta^N-1}$$
    
 Compute the aggregate commitment $C_{agg}$ using the aggregation coefficients $\nu_i$:
-$$C_{agg} = \nu_1 C_{p_x} + \nu_2 C_{p_y} + \nu_3 C_s + \nu_4 C_b + \nu_5 C_{acc_{ip}} + \nu_6 C_{acc_x} + \nu_7 C_{acc_y} + \nu_8 C_q$$
+$$C_{agg} = \nu_1 C_{p_x} + \nu_2 C_{p_y} + \nu_3 C_\sigma + \nu_4 C_b + \nu_5 C_{acc_{ip}} + \nu_6 C_{acc_x} + \nu_7 C_{acc_y} + \nu_8 C_q$$
   
 Compute the aggregate evaluation $agg_\zeta$ using the same coefficients:
-$$agg_\zeta = \nu_1 p_{x,\zeta} + \nu_2 p_{y,\zeta} + \nu_3 s_\zeta + \nu_4 b_\zeta + \nu_5 acc_{ip,\zeta} + \nu_6 acc_{x,\zeta} + \nu_7 acc_{y,\zeta} + \nu_8 q_\zeta$$
+$$agg_\zeta = \nu_1 p_{x,\zeta} + \nu_2 p_{y,\zeta} + \nu_3 \sigma_\zeta + \nu_4 b_\zeta + \nu_5 acc_{ip,\zeta} + \nu_6 acc_{x,\zeta} + \nu_7 acc_{y,\zeta} + \nu_8 q_\zeta$$
 
 Verify the aggregate polynomial opening at $\zeta$ using $\Pi_\zeta$:
 $$\text{PCS.Verify}(C_{agg}, \zeta, agg_\zeta, \Pi_\zeta)$$
